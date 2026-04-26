@@ -14,6 +14,9 @@ import (
 
 func main() {
 	cfg := config.Load()
+	if cfg.Environment == "production" && cfg.JWTSecret == "school-desk-secret-key-2024" {
+		log.Fatal("Refusing to start in production with default JWT secret. Set JWT_SECRET.")
+	}
 	middleware.SetJWTSecret(cfg.JWTSecret)
 
 	if err := database.Initialize(cfg); err != nil {

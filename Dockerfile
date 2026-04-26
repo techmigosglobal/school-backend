@@ -2,14 +2,11 @@ FROM golang:1.25.0-alpine AS builder
 
 WORKDIR /app
 
-# Required for cgo build path used by sqlite driver.
-RUN apk add --no-cache build-base
-
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=1 go build -o /out/main .
+RUN CGO_ENABLED=0 go build -o /out/main .
 
 FROM alpine:3.21
 WORKDIR /app

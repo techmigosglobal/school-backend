@@ -10,8 +10,8 @@ import (
 	"school-backend/internal/config"
 	"school-backend/internal/models"
 
+	"github.com/glebarez/sqlite"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -27,8 +27,9 @@ func Initialize(cfg *config.Config) error {
 	}
 
 	gormCfg := &gorm.Config{Logger: logger.Default.LogMode(logLevel)}
-	if shouldUsePostgres(cfg.DatabaseURL) {
-		DB, err = gorm.Open(postgres.Open(cfg.DatabaseURL), gormCfg)
+	normalizedDatabaseURL := normalizeDatabaseURL(cfg.DatabaseURL)
+	if shouldUsePostgres(normalizedDatabaseURL) {
+		DB, err = gorm.Open(postgres.Open(normalizedDatabaseURL), gormCfg)
 	} else {
 		DB, err = gorm.Open(sqlite.Open(cfg.DatabaseDSN), gormCfg)
 	}
@@ -52,12 +53,33 @@ func Initialize(cfg *config.Config) error {
 }
 
 func shouldUsePostgres(databaseURL string) bool {
-	url := strings.TrimSpace(databaseURL)
+	url := normalizeDatabaseURL(databaseURL)
 	if url == "" {
 		return false
 	}
 	// Common formats: postgres://... or postgresql://...
 	return strings.HasPrefix(url, "postgres://") || strings.HasPrefix(url, "postgresql://")
+}
+
+func normalizeDatabaseURL(databaseURL string) string {
+	url := strings.TrimSpace(databaseURL)
+	if url == "" {
+		return ""
+	}
+
+	// Tolerate accidental "DATABASE_URL=..." value pasted into env.
+	url = strings.TrimPrefix(url, "DATABASE_URL=")
+	url = strings.TrimSpace(url)
+
+	// Tolerate malformed scheme "postgres:user:pass@host/db".
+	if strings.HasPrefix(url, "postgres:") && !strings.HasPrefix(url, "postgres://") {
+		url = "postgres://" + strings.TrimPrefix(url, "postgres:")
+	}
+	if strings.HasPrefix(url, "postgresql:") && !strings.HasPrefix(url, "postgresql://") {
+		url = "postgresql://" + strings.TrimPrefix(url, "postgresql:")
+	}
+
+	return url
 }
 
 func autoMigrate() error {
