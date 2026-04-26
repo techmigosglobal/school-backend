@@ -11,6 +11,13 @@ import (
 
 var JWTSecret = []byte("school-desk-secret-key-2024")
 
+func SetJWTSecret(secret string) {
+	if strings.TrimSpace(secret) == "" {
+		return
+	}
+	JWTSecret = []byte(secret)
+}
+
 type Claims struct {
 	UserID    string `json:"user_id"`
 	Email     string `json:"email"`

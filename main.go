@@ -14,6 +14,7 @@ import (
 
 func main() {
 	cfg := config.Load()
+	middleware.SetJWTSecret(cfg.JWTSecret)
 
 	if err := database.Initialize(cfg); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)

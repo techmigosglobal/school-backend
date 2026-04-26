@@ -2,6 +2,7 @@ package database
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -9,6 +10,7 @@ import (
 	"school-backend/internal/config"
 	"school-backend/internal/models"
 
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -24,9 +26,12 @@ func Initialize(cfg *config.Config) error {
 		logLevel = logger.Info
 	}
 
-	DB, err = gorm.Open(sqlite.Open(cfg.DatabaseDSN), &gorm.Config{
-		Logger: logger.Default.LogMode(logLevel),
-	})
+	gormCfg := &gorm.Config{Logger: logger.Default.LogMode(logLevel)}
+	if shouldUsePostgres(cfg.DatabaseURL) {
+		DB, err = gorm.Open(postgres.Open(cfg.DatabaseURL), gormCfg)
+	} else {
+		DB, err = gorm.Open(sqlite.Open(cfg.DatabaseDSN), gormCfg)
+	}
 	if err != nil {
 		return err
 	}
@@ -44,6 +49,15 @@ func Initialize(cfg *config.Config) error {
 	}
 
 	return nil
+}
+
+func shouldUsePostgres(databaseURL string) bool {
+	url := strings.TrimSpace(databaseURL)
+	if url == "" {
+		return false
+	}
+	// Common formats: postgres://... or postgresql://...
+	return strings.HasPrefix(url, "postgres://") || strings.HasPrefix(url, "postgresql://")
 }
 
 func autoMigrate() error {
