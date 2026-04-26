@@ -1,0 +1,6 @@
+.env
+*.db
+*.sqlite
+.DS_Store
+internal/.DS_Store
+school-backend
