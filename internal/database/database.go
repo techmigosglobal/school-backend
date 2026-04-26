@@ -26,7 +26,10 @@ func Initialize(cfg *config.Config) error {
 		logLevel = logger.Info
 	}
 
-	gormCfg := &gorm.Config{Logger: logger.Default.LogMode(logLevel)}
+	gormCfg := &gorm.Config{
+		Logger:                                   logger.Default.LogMode(logLevel),
+		DisableForeignKeyConstraintWhenMigrating: true,
+	}
 	normalizedDatabaseURL := normalizeDatabaseURL(cfg.DatabaseURL)
 	if shouldUsePostgres(normalizedDatabaseURL) {
 		DB, err = gorm.Open(postgres.Open(normalizedDatabaseURL), gormCfg)
@@ -83,7 +86,8 @@ func normalizeDatabaseURL(databaseURL string) string {
 }
 
 func autoMigrate() error {
-	return DB.AutoMigrate(
+	// Phase 1: foundational tables without heavy cross-dependencies.
+	if err := DB.AutoMigrate(
 		&models.School{},
 		&models.AcademicYear{},
 		&models.Term{},
@@ -93,12 +97,20 @@ func autoMigrate() error {
 		&models.Subject{},
 		&models.Grade{},
 		&models.GradeSubject{},
-		&models.Section{},
 		&models.Room{},
+		&models.Role{},
+		&models.Permission{},
+	); err != nil {
+		return err
+	}
+
+	// Phase 2: staff/student/auth core.
+	if err := DB.AutoMigrate(
 		&models.Staff{},
 		&models.StaffQualification{},
 		&models.StaffSubject{},
 		&models.StaffDocument{},
+		&models.Section{},
 		&models.Student{},
 		&models.Guardian{},
 		&models.MedicalRecord{},
@@ -106,6 +118,16 @@ func autoMigrate() error {
 		&models.Enrollment{},
 		&models.TransferRecord{},
 		&models.PromotionRule{},
+		&models.User{},
+		&models.UserSession{},
+		&models.OTPVerification{},
+		&models.AuditLog{},
+	); err != nil {
+		return err
+	}
+
+	// Phase 3: operational domains.
+	if err := DB.AutoMigrate(
 		&models.TimetableSlot{},
 		&models.Substitution{},
 		&models.AttendanceSession{},
@@ -139,13 +161,11 @@ func autoMigrate() error {
 		&models.LeaveBalance{},
 		&models.LeaveApplication{},
 		&models.Payroll{},
-		&models.Role{},
-		&models.Permission{},
-		&models.User{},
-		&models.UserSession{},
-		&models.OTPVerification{},
-		&models.AuditLog{},
-	)
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func seedData() error {
