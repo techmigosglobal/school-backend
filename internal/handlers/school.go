@@ -321,7 +321,10 @@ func (h *SchoolHandler) CreateRoom(c *gin.Context) {
 }
 
 func (h *SchoolHandler) GetTerms(c *gin.Context) {
-	yearID := c.Param("year_id")
+	yearID := c.Param("id")
+	if yearID == "" {
+		yearID = c.Param("year_id")
+	}
 	var terms []models.Term
 	database.DB.Where("academic_year_id = ?", yearID).Find(&terms)
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: terms})

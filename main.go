@@ -73,7 +73,7 @@ func main() {
 			academicYears.GET("", schoolHandler.GetAcademicYears)
 			academicYears.GET("/:id", schoolHandler.GetAcademicYear)
 			academicYears.POST("", schoolHandler.CreateAcademicYear)
-			academicYears.GET("/:year_id/terms", schoolHandler.GetTerms)
+			academicYears.GET("/:id/terms", schoolHandler.GetTerms)
 		}
 
 		grades := api.Group("/grades")
