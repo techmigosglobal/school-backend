@@ -405,6 +405,16 @@ func seedData() error {
 	}
 	DB.Create(&roleParent)
 
+	rolePrincipalID := "110e8400-e29b-41d4-a716-446655440004"
+	rolePrincipal := models.Role{
+		BaseModel:    models.BaseModel{ID: rolePrincipalID},
+		SchoolID:     schoolID,
+		RoleName:     "Principal",
+		Description:  "School Principal",
+		IsSystemRole: true,
+	}
+	DB.Create(&rolePrincipal)
+
 	permAdmin := models.Permission{
 		BaseModel: models.BaseModel{ID: "110e8400-e29b-41d4-a716-446655440010"},
 		RoleID:    roleAdminID,
@@ -417,14 +427,14 @@ func seedData() error {
 	}
 	DB.Create(&permAdmin)
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+	adminPassword, _ := bcrypt.GenerateFromPassword([]byte("Admin@2025"), bcrypt.DefaultCost)
 	userAdminID := "120e8400-e29b-41d4-a716-446655440001"
 	userAdmin := models.User{
 		BaseModel:     models.BaseModel{ID: userAdminID},
 		SchoolID:      schoolID,
-		Email:         "admin@demoschool.edu",
+		Email:         "admin@publichighschool.edu.in",
 		Phone:         "+91-9876543219",
-		PasswordHash:  string(hashedPassword),
+		PasswordHash:  string(adminPassword),
 		RoleID:        roleAdminID,
 		LinkedType:    "staff",
 		LinkedID:      &staffID,
@@ -432,6 +442,66 @@ func seedData() error {
 		IsVerified:    true,
 	}
 	DB.Create(&userAdmin)
+
+	teacherPassword, _ := bcrypt.GenerateFromPassword([]byte("Teacher@2025"), bcrypt.DefaultCost)
+	userTeacher := models.User{
+		BaseModel:    models.BaseModel{ID: "120e8400-e29b-41d4-a716-446655440002"},
+		SchoolID:     schoolID,
+		Email:        "teacher@publichighschool.edu.in",
+		Phone:        "+91-9876543220",
+		PasswordHash: string(teacherPassword),
+		RoleID:       roleTeacherID,
+		LinkedType:   "staff",
+		LinkedID:     &staffID,
+		IsActive:     true,
+		IsVerified:   true,
+	}
+	DB.Create(&userTeacher)
+
+	parentPassword, _ := bcrypt.GenerateFromPassword([]byte("Parent@2025"), bcrypt.DefaultCost)
+	userParent := models.User{
+		BaseModel:    models.BaseModel{ID: "120e8400-e29b-41d4-a716-446655440003"},
+		SchoolID:     schoolID,
+		Email:        "parent@publichighschool.edu.in",
+		Phone:        "+91-9876543221",
+		PasswordHash: string(parentPassword),
+		RoleID:       roleParentID,
+		LinkedType:   "guardian",
+		LinkedID:     &guardianID,
+		IsActive:     true,
+		IsVerified:   true,
+	}
+	DB.Create(&userParent)
+
+	principalPassword, _ := bcrypt.GenerateFromPassword([]byte("Principal@2025"), bcrypt.DefaultCost)
+	userPrincipal := models.User{
+		BaseModel:    models.BaseModel{ID: "120e8400-e29b-41d4-a716-446655440004"},
+		SchoolID:     schoolID,
+		Email:        "principal@publichighschool.edu.in",
+		Phone:        "+91-9876543222",
+		PasswordHash: string(principalPassword),
+		RoleID:       rolePrincipalID,
+		LinkedType:   "staff",
+		LinkedID:     &staffID,
+		IsActive:     true,
+		IsVerified:   true,
+	}
+	DB.Create(&userPrincipal)
+
+	legacyAdminPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+	legacyAdmin := models.User{
+		BaseModel:    models.BaseModel{ID: "120e8400-e29b-41d4-a716-446655440005"},
+		SchoolID:     schoolID,
+		Email:        "admin@demoschool.edu",
+		Phone:        "+91-9876543223",
+		PasswordHash: string(legacyAdminPassword),
+		RoleID:       roleAdminID,
+		LinkedType:   "staff",
+		LinkedID:     &staffID,
+		IsActive:     true,
+		IsVerified:   true,
+	}
+	DB.Create(&legacyAdmin)
 
 	feeCatID := "130e8400-e29b-41d4-a716-446655440001"
 	feeCat := models.FeeCategory{

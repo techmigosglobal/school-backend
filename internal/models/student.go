@@ -12,13 +12,13 @@ type Student struct {
 	FirstName         string            `gorm:"size:100;not null" json:"first_name"`
 	LastName          string            `gorm:"size:100;not null" json:"last_name"`
 	DateOfBirth       time.Time         `json:"date_of_birth"`
-	Gender            string            `gorm:"type:enum('male','female','other')" json:"gender"`
-	CasteCategory     string            `gorm:"type:enum('general','obc','sc','st','other')" json:"caste_category"`
+	Gender            string            `gorm:"type:text" json:"gender"`
+	CasteCategory     string            `gorm:"type:text" json:"caste_category"`
 	Nationality       string            `gorm:"size:100" json:"nationality"`
 	AdmissionDate     time.Time         `json:"admission_date"`
 	CurrentSectionID  *string           `gorm:"type:uuid" json:"current_section_id"`
 	AadharNumber      string            `gorm:"type:text" json:"aadhar_number"`
-	Status            string            `gorm:"type:enum('active','transferred','alumni','suspended','expelled');default:'active'" json:"status"`
+	Status            string            `gorm:"type:text;default:'active'" json:"status"`
 	School            *School           `gorm:"foreignKey:SchoolID" json:"school,omitempty"`
 	CurrentSection    *Section          `gorm:"foreignKey:CurrentSectionID" json:"current_section,omitempty"`
 	Guardians         []Guardian        `gorm:"foreignKey:StudentID" json:"guardians,omitempty"`
@@ -31,7 +31,7 @@ type Guardian struct {
 	BaseModel
 	StudentID     string    `gorm:"type:uuid;not null" json:"student_id"`
 	FullName      string    `gorm:"size:255;not null" json:"full_name"`
-	Relationship  string    `gorm:"type:enum('father','mother','guardian','other')" json:"relationship"`
+	Relationship  string    `gorm:"type:text" json:"relationship"`
 	Phone         string    `gorm:"size:50" json:"phone"`
 	Email         string    `gorm:"size:255" json:"email"`
 	Occupation    string    `gorm:"size:100" json:"occupation"`
@@ -56,7 +56,7 @@ type MedicalRecord struct {
 type StudentDocument struct {
 	BaseModel
 	StudentID   string     `gorm:"type:uuid;not null" json:"student_id"`
-	DocType     string     `gorm:"type:enum('birth_certificate','aadhar','transfer_certificate','report_card','other')" json:"doc_type"`
+	DocType     string     `gorm:"type:text" json:"doc_type"`
 	FileURL     string     `gorm:"type:text" json:"file_url"`
 	Verified    bool       `gorm:"default:false" json:"verified"`
 	UploadedAt  time.Time  `json:"uploaded_at"`
@@ -70,7 +70,7 @@ type Enrollment struct {
 	AcademicYearID  string         `gorm:"type:uuid;not null" json:"academic_year_id"`
 	RollNumber      string         `gorm:"size:50" json:"roll_number"`
 	EnrollmentDate  time.Time      `json:"enrollment_date"`
-	Status          string         `gorm:"type:enum('enrolled','promoted','retained','transferred','withdrawn');default:'enrolled'" json:"status"`
+	Status          string         `gorm:"type:text;default:'enrolled'" json:"status"`
 	PromotedFromID  *string        `gorm:"type:uuid" json:"promoted_from_id"`
 	Student         *Student       `gorm:"foreignKey:StudentID" json:"student,omitempty"`
 	Section         *Section       `gorm:"foreignKey:SectionID" json:"section,omitempty"`
@@ -81,7 +81,7 @@ type Enrollment struct {
 type TransferRecord struct {
 	BaseModel
 	StudentID           string    `gorm:"type:uuid;not null" json:"student_id"`
-	TransferType        string    `gorm:"type:enum('internal','external','migration');not null" json:"transfer_type"`
+	TransferType        string    `gorm:"type:text;not null" json:"transfer_type"`
 	FromSchool          string    `gorm:"size:255" json:"from_school"`
 	ToSchool            string    `gorm:"size:255" json:"to_school"`
 	TransferDate        time.Time `json:"transfer_date"`

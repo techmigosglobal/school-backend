@@ -8,7 +8,7 @@ type FeeCategory struct {
 	BaseModel
 	SchoolID       string           `gorm:"type:uuid;not null" json:"school_id"`
 	CategoryName   string           `gorm:"size:255;not null" json:"category_name"`
-	Frequency      string           `gorm:"type:enum('monthly','quarterly','half_yearly','yearly','one_time');not null" json:"frequency"`
+	Frequency      string           `gorm:"type:text;not null" json:"frequency"`
 	IsRefundable   bool             `gorm:"default:false" json:"is_refundable"`
 	School         *School          `gorm:"foreignKey:SchoolID" json:"school,omitempty"`
 	Structures     []FeeStructure   `gorm:"foreignKey:FeeCategoryID" json:"structures,omitempty"`
@@ -36,7 +36,7 @@ type FeeConcession struct {
 	StudentID      string       `gorm:"type:uuid;not null" json:"student_id"`
 	FeeCategoryID  string       `gorm:"type:uuid;not null" json:"fee_category_id"`
 	AcademicYearID string       `gorm:"type:uuid;not null" json:"academic_year_id"`
-	ConcessionType string       `gorm:"type:enum('scholarship','merit','financial_aid','sibling','other');not null" json:"concession_type"`
+	ConcessionType string       `gorm:"type:text;not null" json:"concession_type"`
 	Value          float64      `json:"value"`
 	Reason         string       `gorm:"type:text" json:"reason"`
 	ApprovedBy     *string      `gorm:"type:uuid" json:"approved_by"`
@@ -57,7 +57,7 @@ type FeeInvoice struct {
 	NetAmount      float64          `json:"net_amount"`
 	PaidAmount     float64          `json:"paid_amount"`
 	Balance        float64          `json:"balance"`
-	Status         string           `gorm:"type:enum('pending','partial','paid','overdue','cancelled');default:'pending'" json:"status"`
+	Status         string           `gorm:"type:text;default:'pending'" json:"status"`
 	Student        *Student         `gorm:"foreignKey:StudentID" json:"student,omitempty"`
 	AcademicYear   *AcademicYear    `gorm:"foreignKey:AcademicYearID" json:"academic_year,omitempty"`
 	Items          []FeeInvoiceItem `gorm:"foreignKey:InvoiceID" json:"items,omitempty"`
@@ -80,7 +80,7 @@ type Payment struct {
 	ReceiptNumber   string     `gorm:"size:100;unique" json:"receipt_number"`
 	AmountPaid      float64    `json:"amount_paid"`
 	PaymentDate     time.Time  `json:"payment_date"`
-	PaymentMode     string     `gorm:"type:enum('cash','cheque','dd','online','upi','card','bank_transfer');not null" json:"payment_mode"`
+	PaymentMode     string     `gorm:"type:text;not null" json:"payment_mode"`
 	TransactionID   string     `gorm:"size:255" json:"transaction_id"`
 	ReceivedBy      *string    `gorm:"type:uuid" json:"received_by"`
 	CreatedAt       time.Time  `json:"created_at"`
