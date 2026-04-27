@@ -60,7 +60,7 @@ func (h *SchoolHandler) CreateSchool(c *gin.Context) {
 }
 
 func (h *SchoolHandler) GetAcademicYears(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	var years []models.AcademicYear
 	query := database.DB.Preload("Terms")
 	if schoolID != "" {
@@ -91,7 +91,7 @@ func (h *SchoolHandler) CreateAcademicYear(c *gin.Context) {
 	endDate, _ := time.Parse("2006-01-02", req.EndDate)
 
 	year := models.AcademicYear{
-		SchoolID:  req.SchoolID,
+		SchoolID:  scopedSchoolID(c),
 		YearLabel: req.YearLabel,
 		StartDate: startDate,
 		EndDate:   endDate,
@@ -108,7 +108,7 @@ func (h *SchoolHandler) CreateAcademicYear(c *gin.Context) {
 }
 
 func (h *SchoolHandler) GetGrades(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	var grades []models.Grade
 	query := database.DB.Preload("Sections")
 	if schoolID != "" {
@@ -136,7 +136,7 @@ func (h *SchoolHandler) CreateGrade(c *gin.Context) {
 	}
 
 	grade := models.Grade{
-		SchoolID:    req.SchoolID,
+		SchoolID:    scopedSchoolID(c),
 		GradeNumber: req.GradeNumber,
 		GradeName:   req.GradeName,
 	}
@@ -204,7 +204,7 @@ func (h *SchoolHandler) CreateSection(c *gin.Context) {
 }
 
 func (h *SchoolHandler) GetDepartments(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	var depts []models.Department
 	query := database.DB.Preload("HODStaff")
 	if schoolID != "" {
@@ -226,7 +226,7 @@ func (h *SchoolHandler) CreateDepartment(c *gin.Context) {
 	}
 
 	dept := models.Department{
-		SchoolID:       req.SchoolID,
+		SchoolID:       scopedSchoolID(c),
 		DepartmentName: req.DepartmentName,
 		Description:    req.Description,
 	}
@@ -240,7 +240,7 @@ func (h *SchoolHandler) CreateDepartment(c *gin.Context) {
 }
 
 func (h *SchoolHandler) GetSubjects(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	deptID := c.Query("department_id")
 	var subjects []models.Subject
 	query := database.DB.Preload("Department")
@@ -262,7 +262,7 @@ func (h *SchoolHandler) CreateSubject(c *gin.Context) {
 	}
 
 	subject := models.Subject{
-		SchoolID:     req.SchoolID,
+		SchoolID:     scopedSchoolID(c),
 		DepartmentID: req.DepartmentID,
 		SubjectName:  req.SubjectName,
 		SubjectCode:  req.SubjectCode,
@@ -279,7 +279,7 @@ func (h *SchoolHandler) CreateSubject(c *gin.Context) {
 }
 
 func (h *SchoolHandler) GetRooms(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	var rooms []models.Room
 	query := database.DB.Preload("School")
 	if schoolID != "" {
@@ -304,7 +304,7 @@ func (h *SchoolHandler) CreateRoom(c *gin.Context) {
 	}
 
 	room := models.Room{
-		SchoolID:   req.SchoolID,
+		SchoolID:   scopedSchoolID(c),
 		RoomNumber: req.RoomNumber,
 		RoomType:   req.RoomType,
 		Block:      req.Block,

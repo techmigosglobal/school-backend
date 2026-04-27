@@ -17,7 +17,7 @@ func NewFeeHandler() *FeeHandler {
 }
 
 func (h *FeeHandler) GetFeeCategories(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	var categories []models.FeeCategory
 	query := database.DB.Preload("School")
 	if schoolID != "" {
@@ -40,7 +40,7 @@ func (h *FeeHandler) CreateFeeCategory(c *gin.Context) {
 	}
 
 	cat := models.FeeCategory{
-		SchoolID:     req.SchoolID,
+		SchoolID:     scopedSchoolID(c),
 		CategoryName: req.CategoryName,
 		Frequency:    req.Frequency,
 		IsRefundable: req.IsRefundable,
@@ -55,7 +55,7 @@ func (h *FeeHandler) CreateFeeCategory(c *gin.Context) {
 }
 
 func (h *FeeHandler) GetFeeStructures(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	yearID := c.Query("academic_year_id")
 	gradeID := c.Query("grade_id")
 
@@ -83,7 +83,7 @@ func (h *FeeHandler) CreateFeeStructure(c *gin.Context) {
 	}
 
 	structure := models.FeeStructure{
-		SchoolID:       req.SchoolID,
+		SchoolID:       scopedSchoolID(c),
 		AcademicYearID: req.AcademicYearID,
 		GradeID:        req.GradeID,
 		FeeCategoryID:  req.FeeCategoryID,
@@ -119,11 +119,11 @@ func (h *FeeHandler) GetInvoices(c *gin.Context) {
 
 func (h *FeeHandler) CreateInvoice(c *gin.Context) {
 	var req struct {
-		StudentID      string `json:"student_id" binding:"required"`
-		AcademicYearID string `json:"academic_year_id" binding:"required"`
-		InvoiceNumber  string `json:"invoice_number" binding:"required"`
-		InvoiceDate    string `json:"invoice_date" binding:"required"`
-		DueDate        string `json:"due_date" binding:"required"`
+		StudentID      string  `json:"student_id" binding:"required"`
+		AcademicYearID string  `json:"academic_year_id" binding:"required"`
+		InvoiceNumber  string  `json:"invoice_number" binding:"required"`
+		InvoiceDate    string  `json:"invoice_date" binding:"required"`
+		DueDate        string  `json:"due_date" binding:"required"`
 		TotalAmount    float64 `json:"total_amount" binding:"required"`
 		DiscountAmount float64 `json:"discount_amount"`
 		NetAmount      float64 `json:"net_amount" binding:"required"`
@@ -175,12 +175,12 @@ func (h *FeeHandler) CreateInvoice(c *gin.Context) {
 
 func (h *FeeHandler) RecordPayment(c *gin.Context) {
 	var req struct {
-		InvoiceID      string  `json:"invoice_id" binding:"required"`
-		ReceiptNumber  string  `json:"receipt_number" binding:"required"`
-		AmountPaid     float64 `json:"amount_paid" binding:"required"`
-		PaymentDate    string  `json:"payment_date" binding:"required"`
-		PaymentMode    string  `json:"payment_mode" binding:"required"`
-		TransactionID  string  `json:"transaction_id"`
+		InvoiceID     string  `json:"invoice_id" binding:"required"`
+		ReceiptNumber string  `json:"receipt_number" binding:"required"`
+		AmountPaid    float64 `json:"amount_paid" binding:"required"`
+		PaymentDate   string  `json:"payment_date" binding:"required"`
+		PaymentMode   string  `json:"payment_mode" binding:"required"`
+		TransactionID string  `json:"transaction_id"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -190,12 +190,12 @@ func (h *FeeHandler) RecordPayment(c *gin.Context) {
 	paymentDate, _ := time.Parse("2006-01-02", req.PaymentDate)
 
 	payment := models.Payment{
-		InvoiceID:      req.InvoiceID,
-		ReceiptNumber:  req.ReceiptNumber,
-		AmountPaid:     req.AmountPaid,
-		PaymentDate:    paymentDate,
-		PaymentMode:    req.PaymentMode,
-		TransactionID:  req.TransactionID,
+		InvoiceID:     req.InvoiceID,
+		ReceiptNumber: req.ReceiptNumber,
+		AmountPaid:    req.AmountPaid,
+		PaymentDate:   paymentDate,
+		PaymentMode:   req.PaymentMode,
+		TransactionID: req.TransactionID,
 	}
 
 	if err := database.DB.Create(&payment).Error; err != nil {

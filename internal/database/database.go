@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"log"
 	"strings"
 	"time"
@@ -31,6 +32,9 @@ func Initialize(cfg *config.Config) error {
 		DisableForeignKeyConstraintWhenMigrating: true,
 	}
 	normalizedDatabaseURL := normalizeDatabaseURL(cfg.DatabaseURL)
+	if cfg.UsePostgresOnly && !shouldUsePostgres(normalizedDatabaseURL) {
+		return errors.New("production requires postgres DATABASE_URL")
+	}
 	if shouldUsePostgres(normalizedDatabaseURL) {
 		DB, err = gorm.Open(postgres.Open(normalizedDatabaseURL), gormCfg)
 	} else {
@@ -42,14 +46,18 @@ func Initialize(cfg *config.Config) error {
 
 	log.Println("Database connected successfully")
 
-	if err := autoMigrate(); err != nil {
-		return err
+	if cfg.MigrateOnStart {
+		if err := autoMigrate(); err != nil {
+			return err
+		}
+
+		log.Println("Database migrations completed")
 	}
 
-	log.Println("Database migrations completed")
-
-	if err := seedData(); err != nil {
-		log.Printf("Warning: Seed data error (may already exist): %v", err)
+	if cfg.SeedOnStart {
+		if err := seedData(); err != nil {
+			log.Printf("Warning: Seed data error (may already exist): %v", err)
+		}
 	}
 
 	return nil
@@ -179,16 +187,16 @@ func seedData() error {
 
 	schoolID := "550e8400-e29b-41d4-a716-446655440000"
 	school := models.School{
-		BaseModel: models.BaseModel{ID: schoolID},
-		Name:            "Demo International School",
-		SchoolType:      "cbse",
+		BaseModel:        models.BaseModel{ID: schoolID},
+		Name:             "Demo International School",
+		SchoolType:       "cbse",
 		AffiliationBoard: "CBSE",
-		Email:           "info@demoschool.edu",
-		Phone:           "+91-9876543210",
-		City:            "Mumbai",
-		State:           "Maharashtra",
-		Timezone:        "Asia/Kolkata",
-		Currency:        "INR",
+		Email:            "info@demoschool.edu",
+		Phone:            "+91-9876543210",
+		City:             "Mumbai",
+		State:            "Maharashtra",
+		Timezone:         "Asia/Kolkata",
+		Currency:         "INR",
 	}
 	DB.Create(&school)
 
@@ -230,61 +238,61 @@ func seedData() error {
 
 	deptID := "880e8400-e29b-41d4-a716-446655440000"
 	dept := models.Department{
-		BaseModel:       models.BaseModel{ID: deptID},
-		SchoolID:        schoolID,
-		DepartmentName:  "Science",
-		Description:     "Science Department",
+		BaseModel:      models.BaseModel{ID: deptID},
+		SchoolID:       schoolID,
+		DepartmentName: "Science",
+		Description:    "Science Department",
 	}
 	DB.Create(&dept)
 
 	grade1ID := "990e8400-e29b-41d4-a716-446655440001"
 	grade1 := models.Grade{
-		BaseModel:    models.BaseModel{ID: grade1ID},
-		SchoolID:     schoolID,
-		GradeNumber:  1,
-		GradeName:    "Grade 1",
+		BaseModel:   models.BaseModel{ID: grade1ID},
+		SchoolID:    schoolID,
+		GradeNumber: 1,
+		GradeName:   "Grade 1",
 	}
 	DB.Create(&grade1)
 
 	grade2ID := "990e8400-e29b-41d4-a716-446655440002"
 	grade2 := models.Grade{
-		BaseModel:    models.BaseModel{ID: grade2ID},
-		SchoolID:     schoolID,
-		GradeNumber:  2,
-		GradeName:    "Grade 2",
+		BaseModel:   models.BaseModel{ID: grade2ID},
+		SchoolID:    schoolID,
+		GradeNumber: 2,
+		GradeName:   "Grade 2",
 	}
 	DB.Create(&grade2)
 
 	grade10ID := "990e8400-e29b-41d4-a716-446655440010"
 	grade10 := models.Grade{
-		BaseModel:    models.BaseModel{ID: grade10ID},
-		SchoolID:     schoolID,
-		GradeNumber:  10,
-		GradeName:    "Grade 10",
+		BaseModel:   models.BaseModel{ID: grade10ID},
+		SchoolID:    schoolID,
+		GradeNumber: 10,
+		GradeName:   "Grade 10",
 	}
 	DB.Create(&grade10)
 
 	subjID := "aa0e8400-e29b-41d4-a716-446655440001"
 	subj := models.Subject{
-		BaseModel:     models.BaseModel{ID: subjID},
-		SchoolID:      schoolID,
-		DepartmentID:  deptID,
-		SubjectName:   "Mathematics",
-		SubjectCode:   "MATH",
-		SubjectType:   "core",
-		CreditHours:   4,
+		BaseModel:    models.BaseModel{ID: subjID},
+		SchoolID:     schoolID,
+		DepartmentID: deptID,
+		SubjectName:  "Mathematics",
+		SubjectCode:  "MATH",
+		SubjectType:  "core",
+		CreditHours:  4,
 	}
 	DB.Create(&subj)
 
 	subj2ID := "aa0e8400-e29b-41d4-a716-446655440002"
 	subj2 := models.Subject{
-		BaseModel:     models.BaseModel{ID: subj2ID},
-		SchoolID:      schoolID,
-		DepartmentID:  deptID,
-		SubjectName:   "Science",
-		SubjectCode:   "SCI",
-		SubjectType:   "core",
-		CreditHours:   4,
+		BaseModel:    models.BaseModel{ID: subj2ID},
+		SchoolID:     schoolID,
+		DepartmentID: deptID,
+		SubjectName:  "Science",
+		SubjectCode:  "SCI",
+		SubjectType:  "core",
+		CreditHours:  4,
 	}
 	DB.Create(&subj2)
 
@@ -300,51 +308,51 @@ func seedData() error {
 
 	roomID := "cc0e8400-e29b-41d4-a716-446655440001"
 	room := models.Room{
-		BaseModel:   models.BaseModel{ID: roomID},
-		SchoolID:    schoolID,
-		RoomNumber:  "101",
-		RoomType:    "classroom",
-		Block:       "A",
-		Floor:       1,
-		Capacity:    40,
+		BaseModel:  models.BaseModel{ID: roomID},
+		SchoolID:   schoolID,
+		RoomNumber: "101",
+		RoomType:   "classroom",
+		Block:      "A",
+		Floor:      1,
+		Capacity:   40,
 	}
 	DB.Create(&room)
 
 	staffID := "dd0e8400-e29b-41d4-a716-446655440001"
 	staff := models.Staff{
-		BaseModel:       models.BaseModel{ID: staffID},
-		SchoolID:        schoolID,
-		StaffCode:       "STF001",
-		FirstName:       "John",
-		LastName:        "Doe",
-		Email:           "john.doe@demoschool.edu",
-		Phone:           "+91-9876543211",
-		DateOfBirth:     time.Date(1985, 6, 15, 0, 0, 0, 0, time.UTC),
-		Gender:          "male",
-		DepartmentID:    &deptID,
-		Designation:     "Senior Teacher",
-		EmploymentType:  "permanent",
-		JoinDate:        time.Date(2020, 3, 1, 0, 0, 0, 0, time.UTC),
-		BasicSalary:     50000,
-		Status:          "active",
+		BaseModel:      models.BaseModel{ID: staffID},
+		SchoolID:       schoolID,
+		StaffCode:      "STF001",
+		FirstName:      "John",
+		LastName:       "Doe",
+		Email:          "john.doe@demoschool.edu",
+		Phone:          "+91-9876543211",
+		DateOfBirth:    time.Date(1985, 6, 15, 0, 0, 0, 0, time.UTC),
+		Gender:         "male",
+		DepartmentID:   &deptID,
+		Designation:    "Senior Teacher",
+		EmploymentType: "permanent",
+		JoinDate:       time.Date(2020, 3, 1, 0, 0, 0, 0, time.UTC),
+		BasicSalary:    50000,
+		Status:         "active",
 	}
 	DB.Create(&staff)
 
 	studentID := "ee0e8400-e29b-41d4-a716-446655440001"
 	student := models.Student{
-		BaseModel:         models.BaseModel{ID: studentID},
-		SchoolID:          schoolID,
-		StudentCode:       "STU001",
-		AdmissionNumber:   "ADM2025001",
-		FirstName:         "Alice",
-		LastName:          "Smith",
-		DateOfBirth:       time.Date(2010, 3, 20, 0, 0, 0, 0, time.UTC),
-		Gender:            "female",
-		CasteCategory:     "general",
-		Nationality:       "Indian",
-		AdmissionDate:     time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
-		CurrentSectionID:  &sectionID,
-		Status:            "active",
+		BaseModel:        models.BaseModel{ID: studentID},
+		SchoolID:         schoolID,
+		StudentCode:      "STU001",
+		AdmissionNumber:  "ADM2025001",
+		FirstName:        "Alice",
+		LastName:         "Smith",
+		DateOfBirth:      time.Date(2010, 3, 20, 0, 0, 0, 0, time.UTC),
+		Gender:           "female",
+		CasteCategory:    "general",
+		Nationality:      "Indian",
+		AdmissionDate:    time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
+		CurrentSectionID: &sectionID,
+		Status:           "active",
 	}
 	DB.Create(&student)
 
@@ -377,31 +385,31 @@ func seedData() error {
 
 	roleAdminID := "110e8400-e29b-41d4-a716-446655440001"
 	roleAdmin := models.Role{
-		BaseModel:     models.BaseModel{ID: roleAdminID},
-		SchoolID:      schoolID,
-		RoleName:      "Admin",
-		Description:   "School Administrator",
-		IsSystemRole:  true,
+		BaseModel:    models.BaseModel{ID: roleAdminID},
+		SchoolID:     schoolID,
+		RoleName:     "Admin",
+		Description:  "School Administrator",
+		IsSystemRole: true,
 	}
 	DB.Create(&roleAdmin)
 
 	roleTeacherID := "110e8400-e29b-41d4-a716-446655440002"
 	roleTeacher := models.Role{
-		BaseModel:     models.BaseModel{ID: roleTeacherID},
-		SchoolID:      schoolID,
-		RoleName:      "Teacher",
-		Description:   "Teaching Staff",
-		IsSystemRole:  true,
+		BaseModel:    models.BaseModel{ID: roleTeacherID},
+		SchoolID:     schoolID,
+		RoleName:     "Teacher",
+		Description:  "Teaching Staff",
+		IsSystemRole: true,
 	}
 	DB.Create(&roleTeacher)
 
 	roleParentID := "110e8400-e29b-41d4-a716-446655440003"
 	roleParent := models.Role{
-		BaseModel:     models.BaseModel{ID: roleParentID},
-		SchoolID:      schoolID,
-		RoleName:      "Parent",
-		Description:   "Parent/Guardian",
-		IsSystemRole:  true,
+		BaseModel:    models.BaseModel{ID: roleParentID},
+		SchoolID:     schoolID,
+		RoleName:     "Parent",
+		Description:  "Parent/Guardian",
+		IsSystemRole: true,
 	}
 	DB.Create(&roleParent)
 
@@ -430,16 +438,16 @@ func seedData() error {
 	adminPassword, _ := bcrypt.GenerateFromPassword([]byte("Admin@2025"), bcrypt.DefaultCost)
 	userAdminID := "120e8400-e29b-41d4-a716-446655440001"
 	userAdmin := models.User{
-		BaseModel:     models.BaseModel{ID: userAdminID},
-		SchoolID:      schoolID,
-		Email:         "admin@publichighschool.edu.in",
-		Phone:         "+91-9876543219",
-		PasswordHash:  string(adminPassword),
-		RoleID:        roleAdminID,
-		LinkedType:    "staff",
-		LinkedID:      &staffID,
-		IsActive:      true,
-		IsVerified:    true,
+		BaseModel:    models.BaseModel{ID: userAdminID},
+		SchoolID:     schoolID,
+		Email:        "admin@publichighschool.edu.in",
+		Phone:        "+91-9876543219",
+		PasswordHash: string(adminPassword),
+		RoleID:       roleAdminID,
+		LinkedType:   "staff",
+		LinkedID:     &staffID,
+		IsActive:     true,
+		IsVerified:   true,
 	}
 	DB.Create(&userAdmin)
 
@@ -505,11 +513,11 @@ func seedData() error {
 
 	feeCatID := "130e8400-e29b-41d4-a716-446655440001"
 	feeCat := models.FeeCategory{
-		BaseModel:     models.BaseModel{ID: feeCatID},
-		SchoolID:      schoolID,
-		CategoryName:  "Tuition Fee",
-		Frequency:     "monthly",
-		IsRefundable:  false,
+		BaseModel:    models.BaseModel{ID: feeCatID},
+		SchoolID:     schoolID,
+		CategoryName: "Tuition Fee",
+		Frequency:    "monthly",
+		IsRefundable: false,
 	}
 	DB.Create(&feeCat)
 

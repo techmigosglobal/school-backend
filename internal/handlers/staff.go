@@ -18,7 +18,7 @@ func NewStaffHandler() *StaffHandler {
 
 func (h *StaffHandler) GetStaff(c *gin.Context) {
 	page, pageSize := parsePagination(c)
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	deptID := c.Query("department_id")
 	status := c.Query("status")
 
@@ -40,14 +40,7 @@ func (h *StaffHandler) GetStaff(c *gin.Context) {
 	query = query.Preload("Department").Preload("Qualifications").Preload("Subjects").Offset((page - 1) * pageSize).Limit(pageSize)
 	query.Find(&staff)
 
-	c.JSON(http.StatusOK, models.PaginatedResponse{
-		Success:    true,
-		Data:       staff,
-		Page:       page,
-		PageSize:   pageSize,
-		Total:      total,
-		TotalPages: int(total) / pageSize,
-	})
+	c.JSON(http.StatusOK, paginationResult(page, pageSize, total, staff))
 }
 
 func (h *StaffHandler) GetStaffMember(c *gin.Context) {
@@ -71,20 +64,20 @@ func (h *StaffHandler) CreateStaff(c *gin.Context) {
 	joinDate, _ := time.Parse("2006-01-02", req.JoinDate)
 
 	staff := models.Staff{
-		SchoolID:        req.SchoolID,
-		StaffCode:       req.StaffCode,
-		FirstName:       req.FirstName,
-		LastName:        req.LastName,
-		Email:           req.Email,
-		Phone:           req.Phone,
-		DateOfBirth:     dob,
-		Gender:          req.Gender,
-		DepartmentID:    &req.DepartmentID,
-		Designation:     req.Designation,
-		EmploymentType:  req.EmploymentType,
-		JoinDate:        joinDate,
-		BasicSalary:     req.BasicSalary,
-		Status:          "active",
+		SchoolID:       scopedSchoolID(c),
+		StaffCode:      req.StaffCode,
+		FirstName:      req.FirstName,
+		LastName:       req.LastName,
+		Email:          req.Email,
+		Phone:          req.Phone,
+		DateOfBirth:    dob,
+		Gender:         req.Gender,
+		DepartmentID:   &req.DepartmentID,
+		Designation:    req.Designation,
+		EmploymentType: req.EmploymentType,
+		JoinDate:       joinDate,
+		BasicSalary:    req.BasicSalary,
+		Status:         "active",
 	}
 
 	if err := database.DB.Create(&staff).Error; err != nil {
@@ -156,10 +149,16 @@ func (h *StaffHandler) GetStaffAttendance(c *gin.Context) {
 	var attendance []models.StaffAttendance
 	query := database.DB.Where("staff_id = ?", staffID)
 	if month != "" {
-		query = query.Where("strftime('%m', date) = ?", month)
-	}
-	if year != "" {
-		query = query.Where("strftime('%Y', date) = ?", year)
+		start, end, ok := monthYearRange(month, year)
+		if ok {
+			query = query.Where("date >= ? AND date < ?", start, end)
+		}
+	} else if year != "" {
+		start, _, ok := monthYearRange("01", year)
+		if ok {
+			yearEnd := start.AddDate(1, 0, 0)
+			query = query.Where("date >= ? AND date < ?", start, yearEnd)
+		}
 	}
 	query.Find(&attendance)
 

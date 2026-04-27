@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"school-backend/internal/database"
 	"school-backend/internal/models"
+	"school-backend/internal/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +19,7 @@ func NewAnnouncementHandler() *AnnouncementHandler {
 }
 
 func (h *AnnouncementHandler) GetAnnouncements(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	audience := c.Query("target_audience")
 
 	var announcements []models.Announcement
@@ -35,16 +37,16 @@ func (h *AnnouncementHandler) GetAnnouncements(c *gin.Context) {
 
 func (h *AnnouncementHandler) CreateAnnouncement(c *gin.Context) {
 	var req struct {
-		SchoolID        string  `json:"school_id" binding:"required"`
-		Title           string  `json:"title" binding:"required"`
-		Content         string  `json:"content" binding:"required"`
-		TargetAudience  string  `json:"target_audience"`
-		TargetGradeID   string  `json:"target_grade_id"`
-		TargetSectionID string  `json:"target_section_id"`
-		IsUrgent        bool    `json:"is_urgent"`
-		CreatedBy       string  `json:"created_by" binding:"required"`
-		ExpiresAt       string  `json:"expires_at"`
-		AttachmentURL   string  `json:"attachment_url"`
+		SchoolID        string `json:"school_id" binding:"required"`
+		Title           string `json:"title" binding:"required"`
+		Content         string `json:"content" binding:"required"`
+		TargetAudience  string `json:"target_audience"`
+		TargetGradeID   string `json:"target_grade_id"`
+		TargetSectionID string `json:"target_section_id"`
+		IsUrgent        bool   `json:"is_urgent"`
+		CreatedBy       string `json:"created_by"`
+		ExpiresAt       string `json:"expires_at"`
+		AttachmentURL   string `json:"attachment_url"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -52,12 +54,12 @@ func (h *AnnouncementHandler) CreateAnnouncement(c *gin.Context) {
 	}
 
 	announcement := models.Announcement{
-		SchoolID:       req.SchoolID,
+		SchoolID:       scopedSchoolID(c),
 		Title:          req.Title,
 		Content:        req.Content,
 		TargetAudience: req.TargetAudience,
 		IsUrgent:       req.IsUrgent,
-		CreatedBy:      req.CreatedBy,
+		CreatedBy:      c.GetString("user_id"),
 		PublishedAt:    time.Now(),
 		AttachmentURL:  req.AttachmentURL,
 	}
@@ -77,12 +79,19 @@ func (h *AnnouncementHandler) CreateAnnouncement(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create announcement"})
 		return
 	}
+	if services.Queue != nil {
+		_ = services.Queue.Enqueue(context.Background(), "notifications", map[string]interface{}{
+			"type":            "announcement_created",
+			"announcement_id": announcement.ID,
+			"school_id":       announcement.SchoolID,
+		})
+	}
 
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: announcement})
 }
 
 func (h *AnnouncementHandler) GetEvents(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	yearID := c.Query("academic_year_id")
 
 	var events []models.EventCalendar
@@ -108,7 +117,7 @@ func (h *AnnouncementHandler) CreateEvent(c *gin.Context) {
 		EndDatetime    string `json:"end_datetime" binding:"required"`
 		Location       string `json:"location"`
 		IsHoliday      bool   `json:"is_holiday"`
-		CreatedBy      string `json:"created_by" binding:"required"`
+		CreatedBy      string `json:"created_by"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -119,7 +128,7 @@ func (h *AnnouncementHandler) CreateEvent(c *gin.Context) {
 	endTime, _ := time.Parse(time.RFC3339, req.EndDatetime)
 
 	event := models.EventCalendar{
-		SchoolID:       req.SchoolID,
+		SchoolID:       scopedSchoolID(c),
 		AcademicYearID: req.AcademicYearID,
 		EventTitle:     req.EventTitle,
 		EventType:      req.EventType,
@@ -127,12 +136,19 @@ func (h *AnnouncementHandler) CreateEvent(c *gin.Context) {
 		EndDatetime:    endTime,
 		Location:       req.Location,
 		IsHoliday:      req.IsHoliday,
-		CreatedBy:      req.CreatedBy,
+		CreatedBy:      c.GetString("user_id"),
 	}
 
 	if err := database.DB.Create(&event).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create event"})
 		return
+	}
+	if services.Queue != nil {
+		_ = services.Queue.Enqueue(context.Background(), "notifications", map[string]interface{}{
+			"type":      "event_created",
+			"event_id":  event.ID,
+			"school_id": event.SchoolID,
+		})
 	}
 
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: event})

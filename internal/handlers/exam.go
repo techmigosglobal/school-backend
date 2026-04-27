@@ -17,7 +17,7 @@ func NewExamHandler() *ExamHandler {
 }
 
 func (h *ExamHandler) GetExamTypes(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	var examTypes []models.ExamType
 	query := database.DB.Preload("School")
 	if schoolID != "" {
@@ -40,7 +40,7 @@ func (h *ExamHandler) CreateExamType(c *gin.Context) {
 	}
 
 	examType := models.ExamType{
-		SchoolID:         req.SchoolID,
+		SchoolID:         scopedSchoolID(c),
 		Name:             req.Name,
 		WeightagePercent: req.WeightagePercent,
 		IsBoardExam:      req.IsBoardExam,
@@ -55,7 +55,7 @@ func (h *ExamHandler) CreateExamType(c *gin.Context) {
 }
 
 func (h *ExamHandler) GetExams(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	yearID := c.Query("academic_year_id")
 	termID := c.Query("term_id")
 
@@ -96,7 +96,7 @@ func (h *ExamHandler) CreateExam(c *gin.Context) {
 	endDate, _ := time.Parse("2006-01-02", req.EndDate)
 
 	exam := models.Exam{
-		SchoolID:       req.SchoolID,
+		SchoolID:       scopedSchoolID(c),
 		AcademicYearID: req.AcademicYearID,
 		TermID:         req.TermID,
 		ExamTypeID:     req.ExamTypeID,
@@ -116,16 +116,16 @@ func (h *ExamHandler) CreateExam(c *gin.Context) {
 
 func (h *ExamHandler) CreateExamSchedule(c *gin.Context) {
 	var req struct {
-		ExamID     string `json:"exam_id" binding:"required"`
-		GradeID    string `json:"grade_id" binding:"required"`
-		SectionID  string `json:"section_id" binding:"required"`
-		SubjectID  string `json:"subject_id" binding:"required"`
-		ExamDate   string `json:"exam_date" binding:"required"`
-		StartTime  string `json:"start_time"`
-		EndTime    string `json:"end_time"`
-		MaxMarks   int    `json:"max_marks" binding:"required"`
-		PassMarks  int    `json:"pass_marks" binding:"required"`
-		RoomID     string `json:"room_id"`
+		ExamID    string `json:"exam_id" binding:"required"`
+		GradeID   string `json:"grade_id" binding:"required"`
+		SectionID string `json:"section_id" binding:"required"`
+		SubjectID string `json:"subject_id" binding:"required"`
+		ExamDate  string `json:"exam_date" binding:"required"`
+		StartTime string `json:"start_time"`
+		EndTime   string `json:"end_time"`
+		MaxMarks  int    `json:"max_marks" binding:"required"`
+		PassMarks int    `json:"pass_marks" binding:"required"`
+		RoomID    string `json:"room_id"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -135,15 +135,15 @@ func (h *ExamHandler) CreateExamSchedule(c *gin.Context) {
 	examDate, _ := time.Parse("2006-01-02", req.ExamDate)
 
 	schedule := models.ExamSchedule{
-		ExamID:     req.ExamID,
-		GradeID:    req.GradeID,
-		SectionID:  req.SectionID,
-		SubjectID:  req.SubjectID,
-		ExamDate:   examDate,
-		StartTime:  req.StartTime,
-		EndTime:    req.EndTime,
-		MaxMarks:   req.MaxMarks,
-		PassMarks:  req.PassMarks,
+		ExamID:    req.ExamID,
+		GradeID:   req.GradeID,
+		SectionID: req.SectionID,
+		SubjectID: req.SubjectID,
+		ExamDate:  examDate,
+		StartTime: req.StartTime,
+		EndTime:   req.EndTime,
+		MaxMarks:  req.MaxMarks,
+		PassMarks: req.PassMarks,
 	}
 
 	if req.RoomID != "" {
@@ -162,12 +162,12 @@ func (h *ExamHandler) EnterMarks(c *gin.Context) {
 	scheduleID := c.Param("schedule_id")
 	var req struct {
 		Marks []struct {
-			StudentID    string  `json:"student_id" binding:"required"`
-			EnrollmentID string  `json:"enrollment_id" binding:"required"`
+			StudentID     string  `json:"student_id" binding:"required"`
+			EnrollmentID  string  `json:"enrollment_id" binding:"required"`
 			MarksObtained float64 `json:"marks_obtained"`
-			GradeLabel   string  `json:"grade_label"`
-			IsAbsent     bool    `json:"is_absent"`
-			IsExempted   bool    `json:"is_exempted"`
+			GradeLabel    string  `json:"grade_label"`
+			IsAbsent      bool    `json:"is_absent"`
+			IsExempted    bool    `json:"is_exempted"`
 		} `json:"marks" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -209,7 +209,7 @@ func (h *ExamHandler) GetReportCards(c *gin.Context) {
 }
 
 func (h *ExamHandler) GetGradingScale(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	var scales []models.GradingScale
 	query := database.DB.Preload("School")
 	if schoolID != "" {

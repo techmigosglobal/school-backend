@@ -18,7 +18,7 @@ func NewStudentHandler() *StudentHandler {
 
 func (h *StudentHandler) GetStudents(c *gin.Context) {
 	page, pageSize := parsePagination(c)
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	sectionID := c.Query("section_id")
 	status := c.Query("status")
 
@@ -37,17 +37,10 @@ func (h *StudentHandler) GetStudents(c *gin.Context) {
 	}
 
 	query.Count(&total)
-	query = query.Preload("Guardians").Preload("MedicalRecord").Preload("CurrentSection").Offset((page-1)*pageSize).Limit(pageSize)
+	query = query.Preload("Guardians").Preload("MedicalRecord").Preload("CurrentSection").Offset((page - 1) * pageSize).Limit(pageSize)
 	query.Find(&students)
 
-	c.JSON(http.StatusOK, models.PaginatedResponse{
-		Success:    true,
-		Data:       students,
-		Page:       page,
-		PageSize:   pageSize,
-		Total:      total,
-		TotalPages: int(total) / pageSize,
-	})
+	c.JSON(http.StatusOK, paginationResult(page, pageSize, total, students))
 }
 
 func (h *StudentHandler) GetStudent(c *gin.Context) {
@@ -74,7 +67,7 @@ func (h *StudentHandler) CreateStudent(c *gin.Context) {
 	}
 
 	student := models.Student{
-		SchoolID:         req.SchoolID,
+		SchoolID:         scopedSchoolID(c),
 		StudentCode:      req.StudentCode,
 		AdmissionNumber:  req.AdmissionNumber,
 		FirstName:        req.FirstName,
@@ -176,10 +169,15 @@ func (h *StudentHandler) GetStudentAttendance(c *gin.Context) {
 	var attendance []models.StudentAttendance
 	query := database.DB.Where("student_id = ?", studentID).Preload("Session")
 	if month != "" {
-		query = query.Where("strftime('%m', marked_at) = ?", month)
-	}
-	if year != "" {
-		query = query.Where("strftime('%Y', marked_at) = ?", year)
+		start, end, ok := monthYearRange(month, year)
+		if ok {
+			query = query.Where("marked_at >= ? AND marked_at < ?", start, end)
+		}
+	} else if year != "" {
+		start, _, ok := monthYearRange("01", year)
+		if ok {
+			query = query.Where("marked_at >= ? AND marked_at < ?", start, start.AddDate(1, 0, 0))
+		}
 	}
 	query.Find(&attendance)
 

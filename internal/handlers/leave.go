@@ -17,7 +17,7 @@ func NewLeaveHandler() *LeaveHandler {
 }
 
 func (h *LeaveHandler) GetLeaveTypes(c *gin.Context) {
-	schoolID := c.Query("school_id")
+	schoolID := scopedSchoolID(c)
 	var leaveTypes []models.LeaveType
 	query := database.DB.Preload("School")
 	if schoolID != "" {
@@ -42,7 +42,7 @@ func (h *LeaveHandler) CreateLeaveType(c *gin.Context) {
 	}
 
 	leaveType := models.LeaveType{
-		SchoolID:         req.SchoolID,
+		SchoolID:         scopedSchoolID(c),
 		LeaveName:        req.LeaveName,
 		MaxDaysPerYear:   req.MaxDaysPerYear,
 		CarryForwardDays: req.CarryForwardDays,
@@ -124,8 +124,8 @@ func (h *LeaveHandler) ApproveLeaveApplication(c *gin.Context) {
 	}
 
 	var req struct {
-		Status  string `json:"status" binding:"required"`
-		Reason  string `json:"reason"`
+		Status string `json:"status" binding:"required"`
+		Reason string `json:"reason"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
