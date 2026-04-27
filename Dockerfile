@@ -10,6 +10,7 @@ RUN CGO_ENABLED=0 go build -o /out/main .
 
 FROM alpine:3.21
 WORKDIR /app
+RUN apk add --no-cache curl
 RUN addgroup -S app && adduser -S app -G app
 COPY --from=builder /out/main /app/main
 USER app
