@@ -2,6 +2,7 @@ package models
 
 type UserResponse struct {
 	ID         string `json:"id"`
+	Username   string `json:"username"`
 	Email      string `json:"email"`
 	Phone      string `json:"phone"`
 	SchoolID   string `json:"school_id"`
@@ -12,7 +13,7 @@ type UserResponse struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
@@ -29,6 +30,22 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 	SchoolID string `json:"school_id" binding:"required"`
 	RoleID   string `json:"role_id"`
+}
+
+type RegisterSchoolAdminRequest struct {
+	SchoolName       string `json:"school_name" binding:"required"`
+	SchoolType       string `json:"school_type"`
+	AffiliationBoard string `json:"affiliation_board"`
+	SchoolEmail      string `json:"school_email" binding:"omitempty,email"`
+	SchoolPhone      string `json:"school_phone"`
+	City             string `json:"city"`
+	State            string `json:"state"`
+	Timezone         string `json:"timezone"`
+	Currency         string `json:"currency"`
+	AdminName        string `json:"admin_name" binding:"required"`
+	AdminEmail       string `json:"admin_email" binding:"required,email"`
+	AdminPhone       string `json:"admin_phone"`
+	AdminPassword    string `json:"admin_password" binding:"required,min=6"`
 }
 
 type APIResponse struct {
@@ -87,7 +104,10 @@ type CreateStaffRequest struct {
 }
 
 type CreateStudentRequest struct {
-	SchoolID         string `json:"school_id" binding:"required"`
+	// school_id is intentionally NOT required here.
+	// The handler always sets SchoolID from the JWT claim via scopedSchoolID()
+	// to prevent cross-school writes. Client-supplied values are ignored.
+	SchoolID         string `json:"school_id"`
 	StudentCode      string `json:"student_code"`
 	AdmissionNumber  string `json:"admission_number"`
 	FirstName        string `json:"first_name" binding:"required"`
