@@ -51,13 +51,15 @@ func Initialize(cfg *config.Config) error {
 			return err
 		}
 
-		log.Println("Database migrations completed")
+		log.Println("Migration success")
 	}
 
-	if cfg.SeedOnStart {
-		if err := seedData(); err != nil {
-			log.Printf("Warning: Seed data error (may already exist): %v", err)
-		}
+	if err := ensureBootstrapPrincipal(cfg); err != nil {
+		log.Printf("Warning: bootstrap principal setup failed: %v", err)
+	}
+
+	if err := ensureDefaultRolePermissions(); err != nil {
+		log.Printf("Warning: role permission backfill failed: %v", err)
 	}
 
 	return nil
@@ -124,6 +126,7 @@ func autoMigrate() error {
 		&models.MedicalRecord{},
 		&models.StudentDocument{},
 		&models.Enrollment{},
+		&models.ParentStudentLink{},
 		&models.TransferRecord{},
 		&models.PromotionRule{},
 		&models.User{},
@@ -164,6 +167,10 @@ func autoMigrate() error {
 		&models.Announcement{},
 		&models.EventCalendar{},
 		&models.ParentTeacherMeeting{},
+		&models.Homework{},
+		&models.DiaryEntry{},
+		&models.MessageConversation{},
+		&models.Message{},
 		&models.NotificationLog{},
 		&models.LeaveType{},
 		&models.LeaveBalance{},
@@ -176,378 +183,195 @@ func autoMigrate() error {
 	return nil
 }
 
-func seedData() error {
-	var count int64
-	DB.Model(&models.School{}).Count(&count)
-	if count > 0 {
+func ensureBootstrapPrincipal(cfg *config.Config) error {
+	var userCount int64
+	if err := DB.Model(&models.User{}).Count(&userCount).Error; err != nil {
+		return err
+	}
+	if userCount > 0 {
 		return nil
 	}
 
-	log.Println("Seeding initial data...")
-
-	schoolID := "550e8400-e29b-41d4-a716-446655440000"
-	school := models.School{
-		BaseModel:        models.BaseModel{ID: schoolID},
-		Name:             "Demo International School",
-		SchoolType:       "cbse",
-		AffiliationBoard: "CBSE",
-		Email:            "info@demoschool.edu",
-		Phone:            "+91-9876543210",
-		City:             "Mumbai",
-		State:            "Maharashtra",
-		Timezone:         "Asia/Kolkata",
-		Currency:         "INR",
+	bootstrapEmail := strings.ToLower(strings.TrimSpace(cfg.BootstrapPrincipalEmail))
+	hashedPassword, err := HashPassword(cfg.BootstrapPrincipalPassword)
+	if err != nil {
+		return err
 	}
-	DB.Create(&school)
 
-	yearID := "660e8400-e29b-41d4-a716-446655440000"
-	academicYear := models.AcademicYear{
-		BaseModel: models.BaseModel{ID: yearID},
-		SchoolID:  schoolID,
-		YearLabel: "2025-2026",
-		StartDate: time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
-		EndDate:   time.Date(2026, 3, 31, 0, 0, 0, 0, time.UTC),
-		IsCurrent: true,
-		Status:    "active",
+	return DB.Transaction(func(tx *gorm.DB) error {
+		school := models.School{
+			Name:             "SchoolDesk",
+			SchoolType:       "K-12",
+			AffiliationBoard: "CBSE",
+			Email:            "info@schooldesk.local",
+			Phone:            "",
+			City:             "",
+			State:            "",
+			Timezone:         "Asia/Kolkata",
+			Currency:         "INR",
+		}
+		if err := tx.Create(&school).Error; err != nil {
+			return err
+		}
+
+		roleIDs := map[string]string{}
+		for _, roleName := range []string{"Principal", "Admin", "Teacher", "Parent"} {
+			role := models.Role{
+				SchoolID:     school.ID,
+				RoleName:     roleName,
+				Description:  roleName + " role",
+				IsSystemRole: true,
+			}
+			if err := tx.Create(&role).Error; err != nil {
+				return err
+			}
+			roleIDs[strings.ToLower(roleName)] = role.ID
+		}
+		seedRolePermissionsWithDB(tx, roleIDs["admin"], roleIDs["principal"], roleIDs["teacher"], roleIDs["parent"])
+
+		staff := models.Staff{
+			SchoolID:       school.ID,
+			StaffCode:      "PRINC",
+			FirstName:      "Principal",
+			LastName:       "User",
+			Email:          bootstrapEmail,
+			Designation:    "Principal",
+			EmploymentType: "permanent",
+			JoinDate:       time.Now().UTC(),
+			Status:         "active",
+		}
+		if err := tx.Create(&staff).Error; err != nil {
+			return err
+		}
+		staffID := staff.ID
+		principal := models.User{
+			SchoolID:     school.ID,
+			Username:     "PRINC",
+			Email:        bootstrapEmail,
+			PasswordHash: hashedPassword,
+			RoleID:       roleIDs["principal"],
+			LinkedType:   "staff",
+			LinkedID:     &staffID,
+			IsActive:     true,
+			IsVerified:   true,
+		}
+		return tx.Create(&principal).Error
+	})
+}
+
+func seedRolePermissions(adminRoleID, principalRoleID, teacherRoleID, parentRoleID string) {
+	seedRolePermissionsWithDB(DB, adminRoleID, principalRoleID, teacherRoleID, parentRoleID)
+}
+
+func seedRolePermissionsWithDB(db *gorm.DB, adminRoleID, principalRoleID, teacherRoleID, parentRoleID string) {
+	modules := permissionModules()
+	createPermission := func(roleID, module string, read, create, update, delete, export bool) {
+		upsertPermissionWithDB(db, roleID, module, read, create, update, delete, export)
 	}
-	DB.Create(&academicYear)
+	for _, module := range modules {
+		createPermission(adminRoleID, module, true, true, true, true, true)
+		createPermission(principalRoleID, module, true, true, true, module != "audit_logs", true)
 
-	term1ID := "770e8400-e29b-41d4-a716-446655440001"
-	term1 := models.Term{
-		BaseModel:      models.BaseModel{ID: term1ID},
-		AcademicYearID: yearID,
-		TermNumber:     1,
-		TermName:       "First Term",
-		StartDate:      time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
-		EndDate:        time.Date(2025, 9, 30, 0, 0, 0, 0, time.UTC),
-		IsCurrent:      true,
+		teacherRead := inList(module, "dashboard", "guardians", "medical_records", "student_documents", "staff_subjects", "staff_qualifications", "library", "parent_teacher_meetings", "homework", "diary_entries", "message_conversations", "messages")
+		teacherManage := inList(module, "homework", "diary_entries", "message_conversations", "messages", "parent_teacher_meetings")
+		createPermission(teacherRoleID, module, teacherRead, teacherManage, teacherManage, false, false)
+
+		parentRead := inList(module, "dashboard", "guardians", "medical_records", "student_documents", "parent_teacher_meetings", "homework", "diary_entries", "message_conversations", "messages")
+		parentCreate := inList(module, "parent_teacher_meetings", "message_conversations", "messages")
+		parentUpdate := inList(module, "message_conversations", "messages")
+		createPermission(parentRoleID, module, parentRead, parentCreate, parentUpdate, false, false)
 	}
-	DB.Create(&term1)
+}
 
-	term2ID := "770e8400-e29b-41d4-a716-446655440002"
-	term2 := models.Term{
-		BaseModel:      models.BaseModel{ID: term2ID},
-		AcademicYearID: yearID,
-		TermNumber:     2,
-		TermName:       "Second Term",
-		StartDate:      time.Date(2025, 10, 1, 0, 0, 0, 0, time.UTC),
-		EndDate:        time.Date(2026, 3, 31, 0, 0, 0, 0, time.UTC),
-		IsCurrent:      false,
+func permissionModules() []string {
+	return []string{
+		"dashboard",
+		"guardians",
+		"medical_records",
+		"student_documents",
+		"staff_documents",
+		"staff_subjects",
+		"staff_qualifications",
+		"transport",
+		"library",
+		"payroll",
+		"parent_teacher_meetings",
+		"homework",
+		"diary_entries",
+		"message_conversations",
+		"messages",
+		"audit_logs",
 	}
-	DB.Create(&term2)
+}
 
-	deptID := "880e8400-e29b-41d4-a716-446655440000"
-	dept := models.Department{
-		BaseModel:      models.BaseModel{ID: deptID},
-		SchoolID:       schoolID,
-		DepartmentName: "Science",
-		Description:    "Science Department",
+func upsertPermission(roleID, module string, read, create, update, delete, export bool) {
+	upsertPermissionWithDB(DB, roleID, module, read, create, update, delete, export)
+}
+
+func upsertPermissionWithDB(db *gorm.DB, roleID, module string, read, create, update, delete, export bool) {
+	permission := models.Permission{}
+	values := models.Permission{
+		RoleID:    roleID,
+		Module:    module,
+		CanRead:   read,
+		CanCreate: create,
+		CanUpdate: update,
+		CanDelete: delete,
+		CanExport: export,
 	}
-	DB.Create(&dept)
+	db.Where("role_id = ? AND module = ?", roleID, module).
+		Assign(values).
+		FirstOrCreate(&permission)
+}
 
-	grade1ID := "990e8400-e29b-41d4-a716-446655440001"
-	grade1 := models.Grade{
-		BaseModel:   models.BaseModel{ID: grade1ID},
-		SchoolID:    schoolID,
-		GradeNumber: 1,
-		GradeName:   "Grade 1",
+func inList(value string, items ...string) bool {
+	for _, item := range items {
+		if value == item {
+			return true
+		}
 	}
-	DB.Create(&grade1)
+	return false
+}
 
-	grade2ID := "990e8400-e29b-41d4-a716-446655440002"
-	grade2 := models.Grade{
-		BaseModel:   models.BaseModel{ID: grade2ID},
-		SchoolID:    schoolID,
-		GradeNumber: 2,
-		GradeName:   "Grade 2",
+func ensureDefaultRolePermissions() error {
+	var roles []models.Role
+	if err := DB.Where("LOWER(role_name) IN ?", []string{"admin", "principal", "teacher", "parent"}).Find(&roles).Error; err != nil {
+		return err
 	}
-	DB.Create(&grade2)
-
-	grade10ID := "990e8400-e29b-41d4-a716-446655440010"
-	grade10 := models.Grade{
-		BaseModel:   models.BaseModel{ID: grade10ID},
-		SchoolID:    schoolID,
-		GradeNumber: 10,
-		GradeName:   "Grade 10",
+	roleIDs := map[string]string{}
+	for _, role := range roles {
+		roleIDs[strings.ToLower(strings.TrimSpace(role.RoleName))] = role.ID
 	}
-	DB.Create(&grade10)
-
-	subjID := "aa0e8400-e29b-41d4-a716-446655440001"
-	subj := models.Subject{
-		BaseModel:    models.BaseModel{ID: subjID},
-		SchoolID:     schoolID,
-		DepartmentID: deptID,
-		SubjectName:  "Mathematics",
-		SubjectCode:  "MATH",
-		SubjectType:  "core",
-		CreditHours:  4,
+	adminRoleID, okAdmin := roleIDs["admin"]
+	principalRoleID, okPrincipal := roleIDs["principal"]
+	teacherRoleID, okTeacher := roleIDs["teacher"]
+	parentRoleID, okParent := roleIDs["parent"]
+	if !okAdmin || !okPrincipal || !okTeacher || !okParent {
+		return nil
 	}
-	DB.Create(&subj)
+	seedRolePermissions(adminRoleID, principalRoleID, teacherRoleID, parentRoleID)
+	return removeDuplicatePermissions()
+}
 
-	subj2ID := "aa0e8400-e29b-41d4-a716-446655440002"
-	subj2 := models.Subject{
-		BaseModel:    models.BaseModel{ID: subj2ID},
-		SchoolID:     schoolID,
-		DepartmentID: deptID,
-		SubjectName:  "Science",
-		SubjectCode:  "SCI",
-		SubjectType:  "core",
-		CreditHours:  4,
+func removeDuplicatePermissions() error {
+	var rows []models.Permission
+	if err := DB.Order("role_id, module, created_at, id").Find(&rows).Error; err != nil {
+		return err
 	}
-	DB.Create(&subj2)
-
-	sectionID := "bb0e8400-e29b-41d4-a716-446655440001"
-	section := models.Section{
-		BaseModel:      models.BaseModel{ID: sectionID},
-		GradeID:        grade10ID,
-		AcademicYearID: yearID,
-		SectionName:    "A",
-		Capacity:       40,
+	seen := map[string]string{}
+	duplicates := make([]string, 0)
+	for _, row := range rows {
+		key := row.RoleID + "\x00" + row.Module
+		if _, ok := seen[key]; ok {
+			duplicates = append(duplicates, row.ID)
+			continue
+		}
+		seen[key] = row.ID
 	}
-	DB.Create(&section)
-
-	roomID := "cc0e8400-e29b-41d4-a716-446655440001"
-	room := models.Room{
-		BaseModel:  models.BaseModel{ID: roomID},
-		SchoolID:   schoolID,
-		RoomNumber: "101",
-		RoomType:   "classroom",
-		Block:      "A",
-		Floor:      1,
-		Capacity:   40,
+	if len(duplicates) == 0 {
+		return nil
 	}
-	DB.Create(&room)
-
-	staffID := "dd0e8400-e29b-41d4-a716-446655440001"
-	staff := models.Staff{
-		BaseModel:      models.BaseModel{ID: staffID},
-		SchoolID:       schoolID,
-		StaffCode:      "STF001",
-		FirstName:      "John",
-		LastName:       "Doe",
-		Email:          "john.doe@demoschool.edu",
-		Phone:          "+91-9876543211",
-		DateOfBirth:    time.Date(1985, 6, 15, 0, 0, 0, 0, time.UTC),
-		Gender:         "male",
-		DepartmentID:   &deptID,
-		Designation:    "Senior Teacher",
-		EmploymentType: "permanent",
-		JoinDate:       time.Date(2020, 3, 1, 0, 0, 0, 0, time.UTC),
-		BasicSalary:    50000,
-		Status:         "active",
-	}
-	DB.Create(&staff)
-
-	studentID := "ee0e8400-e29b-41d4-a716-446655440001"
-	student := models.Student{
-		BaseModel:        models.BaseModel{ID: studentID},
-		SchoolID:         schoolID,
-		StudentCode:      "STU001",
-		AdmissionNumber:  "ADM2025001",
-		FirstName:        "Alice",
-		LastName:         "Smith",
-		DateOfBirth:      time.Date(2010, 3, 20, 0, 0, 0, 0, time.UTC),
-		Gender:           "female",
-		CasteCategory:    "general",
-		Nationality:      "Indian",
-		AdmissionDate:    time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
-		CurrentSectionID: &sectionID,
-		Status:           "active",
-	}
-	DB.Create(&student)
-
-	guardianID := "ff0e8400-e29b-41d4-a716-446655440002"
-	guardian := models.Guardian{
-		BaseModel:    models.BaseModel{ID: guardianID},
-		StudentID:    studentID,
-		FullName:     "Robert Smith",
-		Relationship: "father",
-		Phone:        "+91-9876543212",
-		Email:        "robert.smith@email.com",
-		Occupation:   "Engineer",
-		AnnualIncome: 800000,
-		IsPrimary:    true,
-		CanPickup:    true,
-	}
-	DB.Create(&guardian)
-
-	enrollmentID := "ff0e8400-e29b-41d4-a716-446655440001"
-	enrollment := models.Enrollment{
-		BaseModel:      models.BaseModel{ID: enrollmentID},
-		StudentID:      studentID,
-		SectionID:      sectionID,
-		AcademicYearID: yearID,
-		RollNumber:     "1",
-		EnrollmentDate: time.Date(2025, 4, 1, 0, 0, 0, 0, time.UTC),
-		Status:         "enrolled",
-	}
-	DB.Create(&enrollment)
-
-	roleAdminID := "110e8400-e29b-41d4-a716-446655440001"
-	roleAdmin := models.Role{
-		BaseModel:    models.BaseModel{ID: roleAdminID},
-		SchoolID:     schoolID,
-		RoleName:     "Admin",
-		Description:  "School Administrator",
-		IsSystemRole: true,
-	}
-	DB.Create(&roleAdmin)
-
-	roleTeacherID := "110e8400-e29b-41d4-a716-446655440002"
-	roleTeacher := models.Role{
-		BaseModel:    models.BaseModel{ID: roleTeacherID},
-		SchoolID:     schoolID,
-		RoleName:     "Teacher",
-		Description:  "Teaching Staff",
-		IsSystemRole: true,
-	}
-	DB.Create(&roleTeacher)
-
-	roleParentID := "110e8400-e29b-41d4-a716-446655440003"
-	roleParent := models.Role{
-		BaseModel:    models.BaseModel{ID: roleParentID},
-		SchoolID:     schoolID,
-		RoleName:     "Parent",
-		Description:  "Parent/Guardian",
-		IsSystemRole: true,
-	}
-	DB.Create(&roleParent)
-
-	rolePrincipalID := "110e8400-e29b-41d4-a716-446655440004"
-	rolePrincipal := models.Role{
-		BaseModel:    models.BaseModel{ID: rolePrincipalID},
-		SchoolID:     schoolID,
-		RoleName:     "Principal",
-		Description:  "School Principal",
-		IsSystemRole: true,
-	}
-	DB.Create(&rolePrincipal)
-
-	permAdmin := models.Permission{
-		BaseModel: models.BaseModel{ID: "110e8400-e29b-41d4-a716-446655440010"},
-		RoleID:    roleAdminID,
-		Module:    "dashboard",
-		CanRead:   true,
-		CanCreate: true,
-		CanUpdate: true,
-		CanDelete: true,
-		CanExport: true,
-	}
-	DB.Create(&permAdmin)
-
-	adminPassword, _ := bcrypt.GenerateFromPassword([]byte("Admin@2025"), bcrypt.DefaultCost)
-	userAdminID := "120e8400-e29b-41d4-a716-446655440001"
-	userAdmin := models.User{
-		BaseModel:    models.BaseModel{ID: userAdminID},
-		SchoolID:     schoolID,
-		Email:        "admin@publichighschool.edu.in",
-		Phone:        "+91-9876543219",
-		PasswordHash: string(adminPassword),
-		RoleID:       roleAdminID,
-		LinkedType:   "staff",
-		LinkedID:     &staffID,
-		IsActive:     true,
-		IsVerified:   true,
-	}
-	DB.Create(&userAdmin)
-
-	teacherPassword, _ := bcrypt.GenerateFromPassword([]byte("Teacher@2025"), bcrypt.DefaultCost)
-	userTeacher := models.User{
-		BaseModel:    models.BaseModel{ID: "120e8400-e29b-41d4-a716-446655440002"},
-		SchoolID:     schoolID,
-		Email:        "teacher@publichighschool.edu.in",
-		Phone:        "+91-9876543220",
-		PasswordHash: string(teacherPassword),
-		RoleID:       roleTeacherID,
-		LinkedType:   "staff",
-		LinkedID:     &staffID,
-		IsActive:     true,
-		IsVerified:   true,
-	}
-	DB.Create(&userTeacher)
-
-	parentPassword, _ := bcrypt.GenerateFromPassword([]byte("Parent@2025"), bcrypt.DefaultCost)
-	userParent := models.User{
-		BaseModel:    models.BaseModel{ID: "120e8400-e29b-41d4-a716-446655440003"},
-		SchoolID:     schoolID,
-		Email:        "parent@publichighschool.edu.in",
-		Phone:        "+91-9876543221",
-		PasswordHash: string(parentPassword),
-		RoleID:       roleParentID,
-		LinkedType:   "guardian",
-		LinkedID:     &guardianID,
-		IsActive:     true,
-		IsVerified:   true,
-	}
-	DB.Create(&userParent)
-
-	principalPassword, _ := bcrypt.GenerateFromPassword([]byte("Principal@2025"), bcrypt.DefaultCost)
-	userPrincipal := models.User{
-		BaseModel:    models.BaseModel{ID: "120e8400-e29b-41d4-a716-446655440004"},
-		SchoolID:     schoolID,
-		Email:        "principal@publichighschool.edu.in",
-		Phone:        "+91-9876543222",
-		PasswordHash: string(principalPassword),
-		RoleID:       rolePrincipalID,
-		LinkedType:   "staff",
-		LinkedID:     &staffID,
-		IsActive:     true,
-		IsVerified:   true,
-	}
-	DB.Create(&userPrincipal)
-
-	legacyAdminPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-	legacyAdmin := models.User{
-		BaseModel:    models.BaseModel{ID: "120e8400-e29b-41d4-a716-446655440005"},
-		SchoolID:     schoolID,
-		Email:        "admin@demoschool.edu",
-		Phone:        "+91-9876543223",
-		PasswordHash: string(legacyAdminPassword),
-		RoleID:       roleAdminID,
-		LinkedType:   "staff",
-		LinkedID:     &staffID,
-		IsActive:     true,
-		IsVerified:   true,
-	}
-	DB.Create(&legacyAdmin)
-
-	feeCatID := "130e8400-e29b-41d4-a716-446655440001"
-	feeCat := models.FeeCategory{
-		BaseModel:    models.BaseModel{ID: feeCatID},
-		SchoolID:     schoolID,
-		CategoryName: "Tuition Fee",
-		Frequency:    "monthly",
-		IsRefundable: false,
-	}
-	DB.Create(&feeCat)
-
-	feeStructID := "130e8400-e29b-41d4-a716-446655440002"
-	feeStructure := models.FeeStructure{
-		BaseModel:      models.BaseModel{ID: feeStructID},
-		SchoolID:       schoolID,
-		AcademicYearID: yearID,
-		GradeID:        grade10ID,
-		FeeCategoryID:  feeCatID,
-		Amount:         5000,
-		DueDay:         10,
-		LateFinePerDay: 50,
-	}
-	DB.Create(&feeStructure)
-
-	leaveTypeID := "140e8400-e29b-41d4-a716-446655440001"
-	leaveType := models.LeaveType{
-		BaseModel:        models.BaseModel{ID: leaveTypeID},
-		SchoolID:         schoolID,
-		LeaveName:        "Casual Leave",
-		MaxDaysPerYear:   12,
-		CarryForwardDays: 0,
-		IsPaid:           false,
-		ApplicableTo:     "all",
-	}
-	DB.Create(&leaveType)
-
-	log.Println("Seed data created successfully")
-	return nil
+	return DB.Where("id IN ?", duplicates).Delete(&models.Permission{}).Error
 }
 
 func HashPassword(password string) (string, error) {

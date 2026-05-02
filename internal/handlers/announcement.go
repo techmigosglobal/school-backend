@@ -79,6 +79,8 @@ func (h *AnnouncementHandler) CreateAnnouncement(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create announcement"})
 		return
 	}
+	id := announcement.ID
+	auditAction(c, "announcements", "create", "announcements", &id)
 	if services.Queue != nil {
 		_ = services.Queue.Enqueue(context.Background(), "notifications", map[string]interface{}{
 			"type":            "announcement_created",
@@ -143,6 +145,8 @@ func (h *AnnouncementHandler) CreateEvent(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create event"})
 		return
 	}
+	id := event.ID
+	auditAction(c, "events", "create", "event_calendars", &id)
 	if services.Queue != nil {
 		_ = services.Queue.Enqueue(context.Background(), "notifications", map[string]interface{}{
 			"type":      "event_created",

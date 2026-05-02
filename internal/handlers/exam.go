@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"school-backend/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type ExamHandler struct{}
@@ -51,6 +53,8 @@ func (h *ExamHandler) CreateExamType(c *gin.Context) {
 		return
 	}
 
+	id := examType.ID
+	auditAction(c, "exams", "create", "exam_types", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: examType})
 }
 
@@ -78,7 +82,7 @@ func (h *ExamHandler) GetExams(c *gin.Context) {
 func (h *ExamHandler) GetExam(c *gin.Context) {
 	id := c.Param("id")
 	var exam models.Exam
-	if err := database.DB.Preload("ExamType").Preload("AcademicYear").Preload("Term").Preload("Schedules").Preload("Schedules.Subject").First(&exam, "id = ?", id).Error; err != nil {
+	if err := database.DB.Preload("ExamType").Preload("AcademicYear").Preload("Term").Preload("Schedules").Preload("Schedules.Subject").First(&exam, "id = ? AND school_id = ?", id, scopedSchoolID(c)).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Exam not found"})
 		return
 	}
@@ -111,6 +115,8 @@ func (h *ExamHandler) CreateExam(c *gin.Context) {
 		return
 	}
 
+	id := exam.ID
+	auditAction(c, "exams", "create", "exams", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: exam})
 }
 
@@ -133,6 +139,11 @@ func (h *ExamHandler) CreateExamSchedule(c *gin.Context) {
 	}
 
 	examDate, _ := time.Parse("2006-01-02", req.ExamDate)
+	var exam models.Exam
+	if err := database.DB.First(&exam, "id = ? AND school_id = ?", req.ExamID, scopedSchoolID(c)).Error; err != nil {
+		fail(c, http.StatusBadRequest, "exam does not belong to school")
+		return
+	}
 
 	schedule := models.ExamSchedule{
 		ExamID:    req.ExamID,
@@ -155,6 +166,8 @@ func (h *ExamHandler) CreateExamSchedule(c *gin.Context) {
 		return
 	}
 
+	id := schedule.ID
+	auditAction(c, "exams", "create", "exam_schedules", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: schedule})
 }
 
@@ -175,17 +188,77 @@ func (h *ExamHandler) EnterMarks(c *gin.Context) {
 		return
 	}
 
-	for _, m := range req.Marks {
-		mark := models.StudentMark{
-			ExamScheduleID: scheduleID,
-			StudentID:      m.StudentID,
-			EnrollmentID:   m.EnrollmentID,
-			MarksObtained:  m.MarksObtained,
-			GradeLabel:     m.GradeLabel,
-			IsAbsent:       m.IsAbsent,
-			IsExempted:     m.IsExempted,
+	var schedule models.ExamSchedule
+	if err := database.DB.Preload("Exam").First(&schedule, "id = ?", scheduleID).Error; err != nil {
+		fail(c, http.StatusNotFound, "Exam schedule not found")
+		return
+	}
+	if schedule.Exam == nil || schedule.Exam.SchoolID != scopedSchoolID(c) {
+		forbid(c, "exam schedule access denied")
+		return
+	}
+	if !teacherCanAccessSectionSubject(c, schedule.SectionID, schedule.SubjectID) {
+		forbid(c, "exam schedule access denied")
+		return
+	}
+
+	enteredBy := currentStaffID(c)
+	createdMarkIDs := []string{}
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		for _, m := range req.Marks {
+			if !m.IsAbsent && !m.IsExempted && m.MarksObtained > float64(schedule.MaxMarks) {
+				return errMarksOutOfRange
+			}
+			if !studentEnrollmentInSection(m.StudentID, m.EnrollmentID, schedule.SectionID) {
+				return errMarksAccessDenied
+			}
+			var existing int64
+			if err := tx.Model(&models.StudentMark{}).
+				Where("exam_schedule_id = ? AND student_id = ?", scheduleID, m.StudentID).
+				Count(&existing).Error; err != nil {
+				return err
+			}
+			if existing > 0 {
+				return errDuplicateMarks
+			}
+			mark := models.StudentMark{
+				ExamScheduleID: scheduleID,
+				StudentID:      m.StudentID,
+				EnrollmentID:   m.EnrollmentID,
+				MarksObtained:  m.MarksObtained,
+				GradeLabel:     m.GradeLabel,
+				IsAbsent:       m.IsAbsent,
+				IsExempted:     m.IsExempted,
+			}
+			if enteredBy != "" {
+				mark.EnteredBy = &enteredBy
+			}
+			if err := tx.Create(&mark).Error; err != nil {
+				return err
+			}
+			createdMarkIDs = append(createdMarkIDs, mark.ID)
 		}
-		database.DB.Create(&mark)
+		return nil
+	})
+	if err != nil {
+		if errors.Is(err, errMarksAccessDenied) {
+			forbid(c, "student does not belong to exam schedule")
+			return
+		}
+		if errors.Is(err, errDuplicateMarks) {
+			fail(c, http.StatusConflict, "Marks already exist for this student and schedule")
+			return
+		}
+		if errors.Is(err, errMarksOutOfRange) {
+			fail(c, http.StatusBadRequest, "marks_obtained exceeds schedule max_marks")
+			return
+		}
+		fail(c, http.StatusInternalServerError, "Failed to enter marks")
+		return
+	}
+	for _, id := range createdMarkIDs {
+		auditID := id
+		auditAction(c, "exams", "create", "student_marks", &auditID)
 	}
 
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Message: "Marks entered successfully"})
@@ -197,7 +270,16 @@ func (h *ExamHandler) GetReportCards(c *gin.Context) {
 
 	var reportCards []models.ReportCard
 	query := database.DB.Preload("Student").Preload("Exam")
+	if currentRole(c) == "parent" {
+		query = query.Where("student_id IN (?)", linkedStudentSubquery(c))
+	} else if currentRole(c) == "teacher" {
+		query = query.Where("student_id IN (?)", database.DB.Model(&models.Student{}).Select("students.id").Where("students.current_section_id IN (?)", teacherAssignedSectionSubquery(c)))
+	}
 	if studentID != "" {
+		if !canAccessStudentID(c, studentID) {
+			forbid(c, "student access denied")
+			return
+		}
 		query = query.Where("student_id = ?", studentID)
 	}
 	if examID != "" {
@@ -207,6 +289,10 @@ func (h *ExamHandler) GetReportCards(c *gin.Context) {
 
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: reportCards})
 }
+
+var errMarksAccessDenied = errors.New("marks access denied")
+var errDuplicateMarks = errors.New("duplicate marks")
+var errMarksOutOfRange = errors.New("marks out of range")
 
 func (h *ExamHandler) GetGradingScale(c *gin.Context) {
 	schoolID := scopedSchoolID(c)

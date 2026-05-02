@@ -55,6 +55,8 @@ func (h *LeaveHandler) CreateLeaveType(c *gin.Context) {
 		return
 	}
 
+	id := leaveType.ID
+	auditAction(c, "leave", "create", "leave_types", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: leaveType})
 }
 
@@ -64,6 +66,9 @@ func (h *LeaveHandler) GetLeaveApplications(c *gin.Context) {
 
 	var applications []models.LeaveApplication
 	query := database.DB.Preload("Staff").Preload("LeaveType").Preload("Approver")
+	if currentRole(c) == "teacher" {
+		staffID = currentStaffID(c)
+	}
 	if staffID != "" {
 		query = query.Where("staff_id = ?", staffID)
 	}
@@ -79,6 +84,19 @@ func (h *LeaveHandler) CreateLeaveApplication(c *gin.Context) {
 	var req models.CreateLeaveApplicationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if currentRole(c) == "teacher" {
+		staffID := currentStaffID(c)
+		if staffID == "" || req.StaffID != staffID {
+			forbid(c, "teachers can only create leave for themselves")
+			return
+		}
+	}
+	var staffCount int64
+	database.DB.Model(&models.Staff{}).Where("id = ? AND school_id = ?", req.StaffID, scopedSchoolID(c)).Count(&staffCount)
+	if staffCount == 0 {
+		forbid(c, "staff access denied")
 		return
 	}
 
@@ -112,6 +130,8 @@ func (h *LeaveHandler) CreateLeaveApplication(c *gin.Context) {
 		return
 	}
 
+	id := application.ID
+	auditAction(c, "leave", "create", "leave_applications", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: application})
 }
 
@@ -120,6 +140,12 @@ func (h *LeaveHandler) ApproveLeaveApplication(c *gin.Context) {
 	var application models.LeaveApplication
 	if err := database.DB.First(&application, "id = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Application not found"})
+		return
+	}
+	var staffCount int64
+	database.DB.Model(&models.Staff{}).Where("id = ? AND school_id = ?", application.StaffID, scopedSchoolID(c)).Count(&staffCount)
+	if staffCount == 0 {
+		forbid(c, "staff access denied")
 		return
 	}
 
@@ -142,6 +168,7 @@ func (h *LeaveHandler) ApproveLeaveApplication(c *gin.Context) {
 		return
 	}
 
+	auditAction(c, "leave", "update", "leave_applications", &id)
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: application})
 }
 
@@ -189,5 +216,7 @@ func (h *LeaveHandler) InitializeLeaveBalances(c *gin.Context) {
 		return
 	}
 
+	id := balance.ID
+	auditAction(c, "leave", "create", "leave_balances", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: balance})
 }

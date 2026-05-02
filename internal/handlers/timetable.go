@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
+	"time"
 
 	"school-backend/internal/database"
 	"school-backend/internal/models"
@@ -46,6 +48,14 @@ func (h *TimetableHandler) CreateTimetableSlot(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if req.DayOfWeek < 1 || req.DayOfWeek > 7 {
+		fail(c, http.StatusBadRequest, "day_of_week must be between 1 and 7")
+		return
+	}
+	if req.PeriodNumber < 1 {
+		fail(c, http.StatusBadRequest, "period_number must be greater than zero")
+		return
+	}
 
 	slot := models.TimetableSlot{
 		SectionID:      req.SectionID,
@@ -69,6 +79,8 @@ func (h *TimetableHandler) CreateTimetableSlot(c *gin.Context) {
 		return
 	}
 
+	id := slot.ID
+	auditAction(c, "timetable", "create", "timetable_slots", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: slot})
 }
 
@@ -100,6 +112,7 @@ func (h *TimetableHandler) UpdateTimetableSlot(c *gin.Context) {
 		return
 	}
 
+	auditAction(c, "timetable", "update", "timetable_slots", &id)
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: slot})
 }
 
@@ -109,6 +122,7 @@ func (h *TimetableHandler) DeleteTimetableSlot(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete timetable slot"})
 		return
 	}
+	auditAction(c, "timetable", "delete", "timetable_slots", &id)
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Message: "Timetable slot deleted successfully"})
 }
 
@@ -119,7 +133,12 @@ func (h *TimetableHandler) GetSubstitutions(c *gin.Context) {
 	var subs []models.Substitution
 	query := database.DB.Preload("TimetableSlot").Preload("OriginalStaff").Preload("SubstituteStaff")
 	if date != "" {
-		query = query.Where("date = ?", date)
+		parsed, err := time.Parse("2006-01-02", date)
+		if err != nil {
+			fail(c, http.StatusBadRequest, "Invalid date format. Use YYYY-MM-DD")
+			return
+		}
+		query = query.Where("date >= ? AND date < ?", parsed, parsed.AddDate(0, 0, 1))
 	}
 	if originalStaffID != "" {
 		query = query.Where("original_staff_id = ?", originalStaffID)
@@ -143,8 +162,20 @@ func (h *TimetableHandler) CreateSubstitution(c *gin.Context) {
 		return
 	}
 
+	// Parse date
+	date, err := time.Parse("2006-01-02", req.Date)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format. Use YYYY-MM-DD"})
+		return
+	}
+	if req.OriginalStaffID == req.SubstituteStaffID {
+		fail(c, http.StatusBadRequest, "substitute_staff_id must be different from original_staff_id")
+		return
+	}
+
 	sub := models.Substitution{
 		TimetableSlotID:   req.TimetableSlotID,
+		Date:              date,
 		OriginalStaffID:   req.OriginalStaffID,
 		SubstituteStaffID: req.SubstituteStaffID,
 		Reason:            req.Reason,
@@ -159,6 +190,8 @@ func (h *TimetableHandler) CreateSubstitution(c *gin.Context) {
 		return
 	}
 
+	id := sub.ID
+	auditAction(c, "timetable", "create", "substitutions", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: sub})
 }
 
@@ -171,14 +204,19 @@ func (h *TimetableHandler) GetTimetableBySection(c *gin.Context) {
 	if yearID != "" {
 		query = query.Where("academic_year_id = ?", yearID)
 	}
-	query.Order("day_of_week, period_number").Find(&slots)
+	if err := query.Order("day_of_week, period_number").Find(&slots).Error; err != nil {
+		fail(c, http.StatusInternalServerError, "Failed to load timetable")
+		return
+	}
 
-	timetable := make(map[int]map[int]models.TimetableSlot)
+	timetable := make(map[string]map[string]models.TimetableSlot)
 	for _, slot := range slots {
-		if timetable[slot.DayOfWeek] == nil {
-			timetable[slot.DayOfWeek] = make(map[int]models.TimetableSlot)
+		day := strconv.Itoa(slot.DayOfWeek)
+		period := strconv.Itoa(slot.PeriodNumber)
+		if timetable[day] == nil {
+			timetable[day] = make(map[string]models.TimetableSlot)
 		}
-		timetable[slot.DayOfWeek][slot.PeriodNumber] = slot
+		timetable[day][period] = slot
 	}
 
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: timetable})

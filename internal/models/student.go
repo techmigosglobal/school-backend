@@ -78,6 +78,19 @@ type Enrollment struct {
 	PromotedFrom    *Enrollment    `gorm:"foreignKey:PromotedFromID" json:"promoted_from,omitempty"`
 }
 
+// ParentStudentLink maps a parent user account to one or more students within
+// the same school. Admission number is stored for audit/debug visibility.
+type ParentStudentLink struct {
+	BaseModel               `json:",inline"`
+	SchoolID                string    `gorm:"type:text;not null;index" json:"school_id"`
+	ParentUserID            string    `gorm:"type:text;not null;index" json:"parent_user_id"`
+	StudentID               string    `gorm:"type:text;not null;index" json:"student_id"`
+	StudentAdmissionNumber  string    `gorm:"type:text;not null" json:"student_admission_number"`
+	School                  *School   `gorm:"foreignKey:SchoolID" json:"school,omitempty"`
+	ParentUser              *User     `gorm:"foreignKey:ParentUserID" json:"parent_user,omitempty"`
+	Student                 *Student  `gorm:"foreignKey:StudentID" json:"student,omitempty"`
+}
+
 type TransferRecord struct {
 	BaseModel
 	StudentID           string    `gorm:"type:uuid;not null" json:"student_id"`

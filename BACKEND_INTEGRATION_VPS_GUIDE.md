@@ -2,6 +2,8 @@
 
 This document explains what has been implemented in `school-backend`, how it integrates with the Flutter app (`/Users/kgt/Documents/schooldesk`), and how to deploy it on a VPS in production mode.
 
+For GitHub → Hostinger VPS → Coolify deployments, use the root `docker-compose.coolify.yml` and `deploy/COOLIFY_DEPLOYMENT.md`. That compose file provisions the Flutter web app, API, worker, Postgres, and Redis with persistent Docker volumes.
+
 ## 1) What is implemented (backend architecture)
 
 ## Runtime entrypoint
@@ -21,14 +23,13 @@ This document explains what has been implemented in `school-backend`, how it int
 - Production-safe defaults:
   - `DISABLE_PUBLIC_REGISTRATION=true` (prod default).
   - `MIGRATE_ON_START=false` (prod default).
-  - `SEED_ON_START=false` (prod default).
   - `USE_POSTGRES_ONLY=true` (prod default).
 
 ## Database layer
 - `internal/database/database.go`
 - Supports Postgres (primary/prod) and SQLite (local/dev fallback).
 - Uses phased auto-migrations for stable schema creation.
-- Seed data exists but is gated by `SEED_ON_START`; production `.env.example` sets this to `false`.
+- Empty databases bootstrap only the Principal account; all operational records are created through the app.
 - If `USE_POSTGRES_ONLY=true`, startup fails when `DATABASE_URL` is not Postgres.
 
 ## Security and API guardrails
@@ -96,7 +97,7 @@ The Flutter app is API-first and wired to this backend under `/api/v1`.
 ## Mock/fake data status
 - Dedicated mock repositories have been removed from active flow.
 - Runtime data is pulled from backend APIs and persisted to local cache.
-- Backend seed is disabled in production by env (`SEED_ON_START=false`).
+- Backend demo seeding is disabled; the app starts from the Principal account and real operational records.
 
 ## 3) Production environment variables
 
@@ -118,8 +119,9 @@ RATE_LIMIT_WINDOW_SECONDS=60
 RATE_LIMIT_MAX_LOGIN=5
 RATE_LIMIT_MAX_API=120
 DISABLE_PUBLIC_REGISTRATION=true
+BOOTSTRAP_PRINCIPAL_EMAIL=principal@yourdomain.com
+BOOTSTRAP_PRINCIPAL_PASSWORD=replace_with_strong_initial_password
 MIGRATE_ON_START=false
-SEED_ON_START=false
 USE_POSTGRES_ONLY=true
 REQUIRE_HTTPS_API_BASE_URL=true
 ```
@@ -127,6 +129,7 @@ REQUIRE_HTTPS_API_BASE_URL=true
 Notes:
 - `DATABASE_DSN` is ignored when Postgres is used; keep it only for local fallback.
 - For first deploy, run migrations once with `MIGRATE_ON_START=true`, then set back to `false`.
+- For an empty production database, the bootstrap Principal account uses `BOOTSTRAP_PRINCIPAL_EMAIL`, username `PRINC`, and `BOOTSTRAP_PRINCIPAL_PASSWORD`. The password must be at least 12 characters in production.
 
 ## 4) VPS deployment runbook
 
@@ -295,4 +298,3 @@ For each backend change:
   - Ensure exact origin is present in `ALLOWED_ORIGINS`.
 - High latency or no cache/rate limiting/session revocation:
   - Verify Redis connectivity and password.
-

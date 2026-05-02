@@ -64,13 +64,16 @@ func auditAction(c *gin.Context, module, action, tableName string, recordID *str
 		return
 	}
 	log := models.AuditLog{
-		UserID:    uid,
-		Module:    module,
-		Action:    action,
-		TableName: tableName,
-		RecordID:  recordID,
-		IPAddress: c.ClientIP(),
-		CreatedAt: time.Now(),
+		UserID:     uid,
+		Role:       c.GetString("role_name"),
+		Module:     module,
+		Action:     action,
+		EntityType: tableName,
+		EntityID:   recordID,
+		TableName:  tableName,
+		RecordID:   recordID,
+		IPAddress:  c.ClientIP(),
+		CreatedAt:  time.Now(),
 	}
 	_ = database.DB.Create(&log).Error
 }
@@ -91,12 +94,15 @@ func parsePagination(c *gin.Context) (int, int) {
 	return page, pageSize
 }
 
+// scopedSchoolID returns the school_id extracted exclusively from the JWT
+// claim set by AuthMiddleware. Query-param fallback has been intentionally
+// removed: accepting a client-supplied school_id would allow cross-tenant
+// data access if the token carries no school scope.
+//
+// The 403 gate for a missing claim is owned by SchoolScopeMiddleware, which
+// aborts the request before any handler runs on protected route groups.
 func scopedSchoolID(c *gin.Context) string {
-	schoolID := strings.TrimSpace(c.GetString("school_id"))
-	if schoolID != "" {
-		return schoolID
-	}
-	return strings.TrimSpace(c.Query("school_id"))
+	return strings.TrimSpace(c.GetString("school_id"))
 }
 
 func monthYearRange(month, year string) (time.Time, time.Time, bool) {

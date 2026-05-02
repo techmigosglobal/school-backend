@@ -85,6 +85,8 @@ func (h *StaffHandler) CreateStaff(c *gin.Context) {
 		return
 	}
 
+	id := staff.ID
+	auditAction(c, "staff", "create", "staff", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: staff})
 }
 
@@ -122,6 +124,7 @@ func (h *StaffHandler) UpdateStaff(c *gin.Context) {
 		return
 	}
 
+	auditAction(c, "staff", "update", "staff", &id)
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: staff})
 }
 
@@ -131,6 +134,7 @@ func (h *StaffHandler) DeleteStaff(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete staff"})
 		return
 	}
+	auditAction(c, "staff", "delete", "staff", &id)
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Message: "Staff deleted successfully"})
 }
 

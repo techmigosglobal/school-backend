@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"school-backend/internal/database"
+	"school-backend/internal/models"
 	"school-backend/internal/services"
 
 	"github.com/gin-gonic/gin"
@@ -139,6 +141,50 @@ func RBACMiddleware(allowedRoles ...string) gin.HandlerFunc {
 
 		respondError(c, http.StatusForbidden, "Access denied")
 		c.Abort()
+	}
+}
+
+func PermissionMiddleware(module, action string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		roleID := strings.TrimSpace(c.GetString("role_id"))
+		roleName := c.GetString("role_name")
+		if roleID == "" {
+			respondError(c, http.StatusUnauthorized, "Role not found")
+			c.Abort()
+			return
+		}
+		if roleName == "Admin" {
+			c.Next()
+			return
+		}
+
+		var permission models.Permission
+		err := database.DB.Where("role_id = ? AND module = ?", roleID, module).First(&permission).Error
+		if err != nil {
+			respondError(c, http.StatusForbidden, "Access denied")
+			c.Abort()
+			return
+		}
+
+		allowed := false
+		switch strings.ToLower(action) {
+		case "read":
+			allowed = permission.CanRead
+		case "create":
+			allowed = permission.CanCreate
+		case "update":
+			allowed = permission.CanUpdate
+		case "delete":
+			allowed = permission.CanDelete
+		case "export":
+			allowed = permission.CanExport
+		}
+		if !allowed {
+			respondError(c, http.StatusForbidden, "Access denied")
+			c.Abort()
+			return
+		}
+		c.Next()
 	}
 }
 

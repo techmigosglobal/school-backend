@@ -56,6 +56,8 @@ func (h *SchoolHandler) CreateSchool(c *gin.Context) {
 		return
 	}
 
+	id := school.ID
+	auditAction(c, "schools", "create", "schools", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: school})
 }
 
@@ -104,6 +106,8 @@ func (h *SchoolHandler) CreateAcademicYear(c *gin.Context) {
 		return
 	}
 
+	id := year.ID
+	auditAction(c, "academic_years", "create", "academic_years", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: year})
 }
 
@@ -146,6 +150,8 @@ func (h *SchoolHandler) CreateGrade(c *gin.Context) {
 		return
 	}
 
+	id := grade.ID
+	auditAction(c, "grades", "create", "grades", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: grade})
 }
 
@@ -200,6 +206,8 @@ func (h *SchoolHandler) CreateSection(c *gin.Context) {
 		return
 	}
 
+	id := section.ID
+	auditAction(c, "sections", "create", "sections", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: section})
 }
 
@@ -236,6 +244,8 @@ func (h *SchoolHandler) CreateDepartment(c *gin.Context) {
 		return
 	}
 
+	id := dept.ID
+	auditAction(c, "departments", "create", "departments", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: dept})
 }
 
@@ -275,6 +285,8 @@ func (h *SchoolHandler) CreateSubject(c *gin.Context) {
 		return
 	}
 
+	id := subject.ID
+	auditAction(c, "subjects", "create", "subjects", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: subject})
 }
 
@@ -317,6 +329,8 @@ func (h *SchoolHandler) CreateRoom(c *gin.Context) {
 		return
 	}
 
+	id := room.ID
+	auditAction(c, "rooms", "create", "rooms", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: room})
 }
 

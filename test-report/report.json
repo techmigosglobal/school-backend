@@ -1,0 +1,576 @@
+{
+  "generated_at": "2026-05-02T03:22:47Z",
+  "total_tests": 63,
+  "passed": 63,
+  "failed": 0,
+  "success_percent": 100,
+  "tests": [
+    {
+      "test_name": "Login Admin",
+      "endpoint": "POST /auth/login",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "77.393702ms",
+      "response_body": "{\"success\":true,\"data\":{\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXNlci1hZG1pbi1zdWl0ZSIsImVtYWlsIjoiYWRtaW5Ac3VpdGUudGVzdCIsInJvbGVfaWQiOiJyb2xlLWFkbWluLXN1aXRlIiwicm9sZV9uYW1lIjoiQWRtaW4iLCJzY2hvb2xfaWQiOiJzY2hvb2wtc3VpdGUiLCJsaW5rZWRfdHlwZSI6InN0YWZmIiwibGlua2VkX2lkIjoiIiwianRpIjoiMjljZWVjNjMtNTM4Ni00OWJhLWJiMTctYWM5MGI0YmEzNDJiIiwiaXNzIjoic2Nob29sLWJhY2tlbmQiLCJleHAiOjE3Nzc3Nzg1NjYsImlhdCI6MTc3NzY5MjE2Nn0.bZ7TpX4ASNT2Ur6DKa5k6ohq2sAIsD31AZjsV9svBcY\",\"refresh_token\":\"7b3378c3-ec4e-46e0-a037-d77263546951\",\"expires_at\":86400,\"user\":{\"id\":\"user-admin-suite\",\"username\":\"admin\",\"email\":\"admin@suite.test\",\"phone\":\"\",\"school_id\":\"school-suite\",\"role_id\":\"role-admin-suite\",\"role_name\":\"Admin\",\"is_active\":true,\"is_verified\":true}}}"
+    },
+    {
+      "test_name": "Login Principal",
+      "endpoint": "POST /auth/login",
+      "role": "Principal",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "75.614513ms",
+      "response_body": "{\"success\":true,\"data\":{\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXNlci1wcmluY2lwYWwtc3VpdGUiLCJlbWFpbCI6InByaW5jaXBhbEBzdWl0ZS50ZXN0Iiwicm9sZV9pZCI6InJvbGUtcHJpbmNpcGFsLXN1aXRlIiwicm9sZV9uYW1lIjoiUHJpbmNpcGFsIiwic2Nob29sX2lkIjoic2Nob29sLXN1aXRlIiwibGlua2VkX3R5cGUiOiJzdGFmZiIsImxpbmtlZF9pZCI6IiIsImp0aSI6ImNhNjI5NTE5LTY5NGYtNDVjMi1hMDNiLTExZTQ0ZGI4YTRkMiIsImlzcyI6InNjaG9vbC1iYWNrZW5kIiwiZXhwIjoxNzc3Nzc4NTY2LCJpYXQiOjE3Nzc2OTIxNjZ9.VfxwLCEnfnQjkpLdUfjdes5WlrGJCOzNzc7YXY3bOWc\",\"refresh_token\":\"e62413e8-1a72-4366-89dc-7d420fdb2cbc\",\"expires_at\":86400,\"user\":{\"id\":\"user-principal-suite\",\"username\":\"principal\",\"email\":\"principal@suite.test\",\"phone\":\"\",\"school_id\":\"school-suite\",\"role_id\":\"role-principal-suite\",\"role_name\":\"Principal\",\"is_active\":true,\"is_verified\":true}}}"
+    },
+    {
+      "test_name": "Login Teacher",
+      "endpoint": "POST /auth/login",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "78.49618ms",
+      "response_body": "{\"success\":true,\"data\":{\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXNlci10ZWFjaGVyLXN1aXRlIiwiZW1haWwiOiJ0ZWFjaGVyQHN1aXRlLnRlc3QiLCJyb2xlX2lkIjoicm9sZS10ZWFjaGVyLXN1aXRlIiwicm9sZV9uYW1lIjoiVGVhY2hlciIsInNjaG9vbF9pZCI6InNjaG9vbC1zdWl0ZSIsImxpbmtlZF90eXBlIjoic3RhZmYiLCJsaW5rZWRfaWQiOiJzdGFmZi1zdWl0ZS10ZWFjaGVyIiwianRpIjoiMTNjZGI4YTMtZjE5MS00NTIyLWJlMzEtMDZiZjg1MzA5MzRiIiwiaXNzIjoic2Nob29sLWJhY2tlbmQiLCJleHAiOjE3Nzc3Nzg1NjYsImlhdCI6MTc3NzY5MjE2Nn0.5DXKqE6xEMlBalKWsxBQ-W8VLriTMXSWi7LMwzSI7Ys\",\"refresh_token\":\"ce6e2e6d-df28-436e-a208-dd0d0df18ce3\",\"expires_at\":86400,\"user\":{\"id\":\"user-teacher-suite\",\"username\":\"teacher\",\"email\":\"teacher@suite.test\",\"phone\":\"\",\"school_id\":\"school-suite\",\"role_id\":\"role-teacher-suite\",\"role_name\":\"Teacher\",\"is_active\":true,\"is_verified\":true}}}"
+    },
+    {
+      "test_name": "Login Parent",
+      "endpoint": "POST /auth/login",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "75.956828ms",
+      "response_body": "{\"success\":true,\"data\":{\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXNlci1wYXJlbnQtc3VpdGUiLCJlbWFpbCI6InBhcmVudEBzdWl0ZS50ZXN0Iiwicm9sZV9pZCI6InJvbGUtcGFyZW50LXN1aXRlIiwicm9sZV9uYW1lIjoiUGFyZW50Iiwic2Nob29sX2lkIjoic2Nob29sLXN1aXRlIiwibGlua2VkX3R5cGUiOiJndWFyZGlhbiIsImxpbmtlZF9pZCI6IiIsImp0aSI6IjljNGRhNTY5LWQ2MzYtNDdhMi05ZTAyLTU4OTBmODQzNTY2NyIsImlzcyI6InNjaG9vbC1iYWNrZW5kIiwiZXhwIjoxNzc3Nzc4NTY2LCJpYXQiOjE3Nzc2OTIxNjZ9.Fh8RBkmzGLni824h6053j9XRdXc7-eIw-gAbfx8LAAc\",\"refresh_token\":\"9febdabb-932d-4a95-b018-5726da33a588\",\"expires_at\":86400,\"user\":{\"id\":\"user-parent-suite\",\"username\":\"parent\",\"email\":\"parent@suite.test\",\"phone\":\"\",\"school_id\":\"school-suite\",\"role_id\":\"role-parent-suite\",\"role_name\":\"Parent\",\"is_active\":true,\"is_verified\":true}}}"
+    },
+    {
+      "test_name": "Admin dashboard metrics",
+      "endpoint": "GET /dashboard/admin",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "2.046934ms",
+      "response_body": "{\"success\":true,\"data\":{\"fees\":{\"total_invoiced\":0,\"total_paid\":0,\"total_balance\":0,\"pending_count\":0,\"paid_count\":0,\"collection_pct\":0},\"metrics\":{\"classes\":2,\"open_conversations\":0,\"pending_approvals\":0,\"staff\":{\"active\":1,\"total\":1},\"students\":{\"active\":3,\"total\":3},\"unread_alerts\":0,\"upcoming_exams\":0},\"role\":\"Admin\",\"today_attendance\":{\"attendance_pct\":0,\"marked\":0,\"present\":0,\"sessions\":0}},\"request_id\":\"fd340c7f-fc41-47ad-860b-dba2056e349b\"}"
+    },
+    {
+      "test_name": "Principal dashboard metrics",
+      "endpoint": "GET /dashboard/principal",
+      "role": "Principal",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.483341ms",
+      "response_body": "{\"success\":true,\"data\":{\"fees\":{\"total_invoiced\":0,\"total_paid\":0,\"total_balance\":0,\"pending_count\":0,\"paid_count\":0,\"collection_pct\":0},\"metrics\":{\"pending_approvals\":0,\"total_classes\":2,\"total_staff\":1,\"total_students\":3,\"upcoming_events\":0,\"upcoming_exams\":0,\"urgent_notices\":0},\"role\":\"Principal\",\"today_attendance\":{\"attendance_pct\":0,\"marked\":0,\"present\":0,\"sessions\":0}},\"request_id\":\"1f24f2ee-a75a-49ed-9ace-29c852f6d3d4\"}"
+    },
+    {
+      "test_name": "Teacher dashboard metrics",
+      "endpoint": "GET /dashboard/teacher",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.984022ms",
+      "response_body": "{\"success\":true,\"data\":{\"assigned_classes\":[{\"id\":\"section-suite-a\",\"section_name\":\"A\",\"grade_name\":\"Grade 10\"}],\"metrics\":{\"assigned_classes\":1,\"assigned_students\":2,\"diary_entries_today\":0,\"homework_due\":0,\"homework_total\":0,\"unread_messages\":0},\"role\":\"Teacher\",\"staff_id\":\"staff-suite-teacher\",\"today_attendance\":{\"attendance_pct\":0,\"marked\":0,\"present\":0,\"sessions\":0}},\"request_id\":\"09c8915d-31ab-49bb-9fd5-e3497e022d2c\"}"
+    },
+    {
+      "test_name": "Parent dashboard metrics",
+      "endpoint": "GET /dashboard/parent",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.695176ms",
+      "response_body": "{\"success\":true,\"data\":{\"attendance\":{\"attendance_pct\":0,\"marked\":0,\"present\":0,\"sessions\":0},\"children\":[{\"id\":\"student-suite-linked\",\"first_name\":\"Linked\",\"last_name\":\"Child\",\"admission_number\":\"ADM-001\",\"current_section_id\":\"section-suite-a\",\"pending_fee_balance\":0}],\"metrics\":{\"linked_children\":1,\"open_homework\":0,\"pending_fee_balance\":0,\"pending_invoices\":0,\"unread_messages\":0},\"role\":\"Parent\"},\"request_id\":\"039ac071-67be-4969-9dc7-f42ef031febf\"}"
+    },
+    {
+      "test_name": "Parent forbidden admin dashboard",
+      "endpoint": "GET /dashboard/admin",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "299.337µs",
+      "response_body": "{\"code\":\"Forbidden\",\"error\":\"Access denied\",\"message\":\"Access denied\",\"request_id\":\"1215c95d-d56f-4ce6-ac4d-41e9b408cee1\",\"success\":false}"
+    },
+    {
+      "test_name": "Unauthorized students list",
+      "endpoint": "GET /students",
+      "role": "Anonymous",
+      "status": "PASS",
+      "status_code": 401,
+      "response_time": "200.523µs",
+      "response_body": "{\"code\":\"Unauthorized\",\"error\":\"Authorization header required\",\"message\":\"Authorization header required\",\"request_id\":\"44d0733e-f7ef-48bf-9639-c7d7da650e65\",\"success\":false}"
+    },
+    {
+      "test_name": "Parent forbidden create student",
+      "endpoint": "POST /students",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "290.386µs",
+      "response_body": "{\"code\":\"Forbidden\",\"error\":\"Access denied\",\"message\":\"Access denied\",\"request_id\":\"84e3a423-67ff-497c-9171-1b138f3171e7\",\"success\":false}"
+    },
+    {
+      "test_name": "Admin create student",
+      "endpoint": "POST /students",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "2.180841ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"created_at\":\"2026-05-02T08:52:46.996436731+05:30\",\"updated_at\":\"2026-05-02T08:52:46.996436731+05:30\",\"school_id\":\"school-suite\",\"student_code\":\"RT-001\",\"admission_number\":\"RT-001\",\"first_name\":\"Runtime\",\"last_name\":\"Student\",\"date_of_birth\":\"2015-01-01T00:00:00Z\",\"gender\":\"female\",\"caste_category\":\"\",\"nationality\":\"\",\"admission_date\":\"2026-05-02T08:52:46.996179904+05:30\",\"current_section_id\":\"section-suite-a\",\"aadhar_number\":\"\",\"status\":\"active\"}}"
+    },
+    {
+      "test_name": "Admin assign enrollment",
+      "endpoint": "POST /students/enrollments",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "1.438138ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"a00ca2ab-64a6-4a6f-bc9b-c1b3730926ee\",\"created_at\":\"2026-05-02T08:52:46.998844178+05:30\",\"updated_at\":\"2026-05-02T08:52:46.998844178+05:30\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"section_id\":\"section-suite-a\",\"academic_year_id\":\"year-suite\",\"roll_number\":\"77\",\"enrollment_date\":\"2026-05-01T00:00:00Z\",\"status\":\"enrolled\",\"promoted_from_id\":null}}"
+    },
+    {
+      "test_name": "Admin link parent to new student",
+      "endpoint": "POST /parents/user-parent-suite/students",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "2.352073ms",
+      "response_body": "{\"success\":true,\"message\":\"Parent-student assignments updated\",\"data\":{\"admission_numbers\":[\"RT-001\"],\"assigned_students\":1,\"parent_user_id\":\"user-parent-suite\"},\"request_id\":\"3b74ce54-b694-4a2c-8127-be153cc70f1b\"}"
+    },
+    {
+      "test_name": "Admin create invoice",
+      "endpoint": "POST /fees/invoices",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "3.048322ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"2b1b7847-a4eb-48c7-bc60-6b0dbfb88425\",\"created_at\":\"2026-05-02T08:52:47.002870594+05:30\",\"updated_at\":\"2026-05-02T08:52:47.002870594+05:30\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"academic_year_id\":\"year-suite\",\"invoice_number\":\"RT-INV-001\",\"invoice_date\":\"2026-05-01T00:00:00Z\",\"due_date\":\"2026-05-10T00:00:00Z\",\"total_amount\":1000,\"discount_amount\":0,\"net_amount\":1000,\"paid_amount\":0,\"balance\":1000,\"status\":\"pending\"}}"
+    },
+    {
+      "test_name": "Admin create exam type",
+      "endpoint": "POST /exams/types",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "2.542344ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"a6c89b24-c0ed-4ba2-8179-82f0c31d9c01\",\"created_at\":\"2026-05-02T08:52:47.005713121+05:30\",\"updated_at\":\"2026-05-02T08:52:47.005713121+05:30\",\"school_id\":\"school-suite\",\"name\":\"Runtime Type\",\"weightage_percent\":10,\"is_board_exam\":false}}"
+    },
+    {
+      "test_name": "Admin create exam",
+      "endpoint": "POST /exams",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "1.67986ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"8d42adb3-44ae-48c0-92af-345e86f83560\",\"created_at\":\"2026-05-02T08:52:47.008427065+05:30\",\"updated_at\":\"2026-05-02T08:52:47.008427065+05:30\",\"school_id\":\"school-suite\",\"academic_year_id\":\"year-suite\",\"term_id\":\"term-suite-1\",\"exam_type_id\":\"a6c89b24-c0ed-4ba2-8179-82f0c31d9c01\",\"exam_name\":\"Runtime Exam\",\"start_date\":\"2026-05-15T00:00:00Z\",\"end_date\":\"2026-05-16T00:00:00Z\",\"is_published\":false}}"
+    },
+    {
+      "test_name": "Admin create exam schedule",
+      "endpoint": "POST /exams/schedules",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "1.824568ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"d8aced1d-16d3-4154-a4a1-e15c0a5031f4\",\"created_at\":\"2026-05-02T08:52:47.010447178+05:30\",\"updated_at\":\"2026-05-02T08:52:47.010447178+05:30\",\"exam_id\":\"8d42adb3-44ae-48c0-92af-345e86f83560\",\"grade_id\":\"grade-suite-10\",\"section_id\":\"section-suite-a\",\"subject_id\":\"subject-suite-math\",\"exam_date\":\"2026-05-15T00:00:00Z\",\"start_time\":\"09:00\",\"end_time\":\"10:00\",\"max_marks\":100,\"pass_marks\":35,\"room_id\":null}}"
+    },
+    {
+      "test_name": "Admin create outside exam schedule",
+      "endpoint": "POST /exams/schedules",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "1.402997ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"13bdb579-df2e-4bc6-af66-4f9386038bf3\",\"created_at\":\"2026-05-02T08:52:47.012187485+05:30\",\"updated_at\":\"2026-05-02T08:52:47.012187485+05:30\",\"exam_id\":\"8d42adb3-44ae-48c0-92af-345e86f83560\",\"grade_id\":\"grade-suite-10\",\"section_id\":\"section-suite-b\",\"subject_id\":\"subject-suite-math\",\"exam_date\":\"2026-05-15T00:00:00Z\",\"start_time\":\"11:00\",\"end_time\":\"12:00\",\"max_marks\":100,\"pass_marks\":35,\"room_id\":null}}"
+    },
+    {
+      "test_name": "Teacher list assigned section students",
+      "endpoint": "GET /students?section_id=section-suite-a",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "2.103478ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"student-suite-linked\",\"created_at\":\"2026-05-02T08:52:42.25374567+05:30\",\"updated_at\":\"2026-05-02T08:52:42.25374567+05:30\",\"school_id\":\"school-suite\",\"student_code\":\"ST-001\",\"admission_number\":\"ADM-001\",\"first_name\":\"Linked\",\"last_name\":\"Child\",\"date_of_birth\":\"2016-05-02T03:22:42.248404537Z\",\"gender\":\"male\",\"caste_category\":\"\",\"nationality\":\"\",\"admission_date\":\"2026-05-02T03:22:42.248404537Z\",\"current_section_id\":\"section-suite-a\",\"aadhar_number\":\"\",\"status\":\"active\",\"current_section\":{\"id\":\"section-suite-a\",\"created_at\":\"2026-05-02T08:52:42.250563776+05:30\",\"updated_at\":\"2026-05-02T08:52:42.250563776+05:30\",\"grade_id\":\"grade-suite-10\",\"academic_year_id\":\"year-suite\",\"section_name\":\"A\",\"class_teacher_id\":\"staff-suite-teacher\",\"room_id\":null,\"capacity\":40}},{\"id\":\"student-suite-other\",\"created_at\":\"2026-05-02T08:52:42.254089055+05:30\",\"updated_at\":\"2026-05-02T08:52:42.254089055+05:30\",\"school_id\":\"school-suite\",\"student_code\":\"ST-002\",\"admission_number\":\"ADM-002\",\"first_name\":\"Other\",\"last_name\":\"Child\",\"date_of_birth\":\"2016-05-02T03:22:42.248404537Z\",\"gender\":\"female\",\"caste_category\":\"\",\"nationality\":\"\",\"admission_date\":\"2026-05-02T03:22:42.248404537...[truncated]"
+    },
+    {
+      "test_name": "Teacher forbidden outside section students",
+      "endpoint": "GET /students?section_id=section-suite-b",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "2.336327ms",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"section access denied\",\"error\":\"section access denied\",\"request_id\":\"0d7b6bfb-7227-401b-9f16-1a7b83c0c229\"}"
+    },
+    {
+      "test_name": "Teacher create attendance session",
+      "endpoint": "POST /attendance/sessions",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "1.751899ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"abf3736c-f52f-4714-be79-5fdd3a98beb7\",\"updated_at\":\"2026-05-02T08:52:47.01855888+05:30\",\"section_id\":\"section-suite-a\",\"timetable_slot_id\":null,\"subject_id\":\"subject-suite-math\",\"staff_id\":\"staff-suite-teacher\",\"date\":\"2026-05-01T00:00:00Z\",\"period_number\":1,\"total_students\":0,\"present_count\":0,\"is_finalized\":false,\"created_at\":\"2026-05-02T08:52:47.01855888+05:30\"}}"
+    },
+    {
+      "test_name": "Attendance rejects invalid student",
+      "endpoint": "POST /attendance/sessions/abf3736c-f52f-4714-be79-5fdd3a98beb7/mark",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "3.04022ms",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student does not belong to attendance session\",\"error\":\"student does not belong to attendance session\",\"request_id\":\"11999437-9806-4397-91da-daf24d23a51b\"}"
+    },
+    {
+      "test_name": "Teacher mark attendance",
+      "endpoint": "POST /attendance/sessions/abf3736c-f52f-4714-be79-5fdd3a98beb7/mark",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "4.783459ms",
+      "response_body": "{\"success\":true,\"message\":\"Attendance marked successfully\"}"
+    },
+    {
+      "test_name": "Teacher assign homework",
+      "endpoint": "POST /homework",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "4.270501ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"1b02980d-ae9e-463b-adbd-dbe7327c297c\",\"created_at\":\"2026-05-02T08:52:47.030871768+05:30\",\"updated_at\":\"2026-05-02T08:52:47.030871768+05:30\",\"school_id\":\"school-suite\",\"title\":\"Runtime Homework\",\"subject\":\"Mathematics\",\"class\":\"Grade 10-A\",\"section_id\":\"section-suite-a\",\"teacher_id\":\"staff-suite-teacher\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"description\":\"API suite homework\",\"due_date\":\"2026-05-03T00:00:00Z\",\"status\":\"pending\",\"created_by\":\"staff-suite-teacher\"},\"request_id\":\"c0e8f76d-0f74-41ef-b232-197ff25043a9\"}"
+    },
+    {
+      "test_name": "Admin create other child homework",
+      "endpoint": "POST /homework",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "1.437072ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"35fb2efb-9a73-49c3-8d76-ccd0512934a5\",\"created_at\":\"2026-05-02T08:52:47.032519591+05:30\",\"updated_at\":\"2026-05-02T08:52:47.032519591+05:30\",\"school_id\":\"school-suite\",\"title\":\"Other Homework\",\"subject\":\"Mathematics\",\"class\":\"Grade 10-A\",\"section_id\":\"section-suite-a\",\"teacher_id\":\"staff-suite-teacher\",\"student_id\":\"student-suite-other\",\"description\":\"Not linked to parent\",\"due_date\":\"2026-05-03T00:00:00Z\",\"status\":\"pending\",\"created_by\":\"staff-suite-teacher\"},\"request_id\":\"0fcc27cf-66f5-41dd-b5b4-bc9f6da0d2f5\"}"
+    },
+    {
+      "test_name": "Teacher write diary",
+      "endpoint": "POST /diary-entries",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "2.77864ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"a52fa0f4-9df0-4594-a04a-54a7c14c52f7\",\"created_at\":\"2026-05-02T08:52:47.034905361+05:30\",\"updated_at\":\"2026-05-02T08:52:47.034905361+05:30\",\"school_id\":\"school-suite\",\"date\":\"2026-05-01T00:00:00Z\",\"class\":\"Grade 10-A\",\"section_id\":\"section-suite-a\",\"subject\":\"Mathematics\",\"title\":\"Runtime Diary\",\"classwork\":\"API suite\",\"homework\":\"Complete assignment\",\"notes\":\"\",\"schedule\":\"\",\"type\":\"regular\",\"teacher_id\":\"staff-suite-teacher\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"created_by\":\"Suite Teacher\"},\"request_id\":\"23db8592-3ff5-4220-8fd2-f1d187e51a90\"}"
+    },
+    {
+      "test_name": "Teacher forbidden homework outside section",
+      "endpoint": "POST /homework",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "1.149104ms",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"7d217553-041d-458d-bc0b-b11f3df5c8d4\"}"
+    },
+    {
+      "test_name": "Teacher enter marks",
+      "endpoint": "POST /exams/schedules/d8aced1d-16d3-4154-a4a1-e15c0a5031f4/marks",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "2.276435ms",
+      "response_body": "{\"success\":true,\"message\":\"Marks entered successfully\"}"
+    },
+    {
+      "test_name": "Teacher forbidden marks outside section",
+      "endpoint": "POST /exams/schedules/13bdb579-df2e-4bc6-af66-4f9386038bf3/marks",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "1.237241ms",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"exam schedule access denied\",\"error\":\"exam schedule access denied\",\"request_id\":\"b511dd0a-a5dc-4dcd-bed0-d265e51d10fb\"}"
+    },
+    {
+      "test_name": "Parent fetch linked child",
+      "endpoint": "GET /me/students",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.380364ms",
+      "response_body": "{\"success\":true,\"data\":[{\"admission_number\":\"RT-001\",\"current_section_id\":\"section-suite-a\",\"first_name\":\"Runtime\",\"grade_name\":\"Grade 10\",\"id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"last_name\":\"Student\",\"section_name\":\"A\",\"status\":\"active\",\"student_code\":\"RT-001\"}],\"request_id\":\"47105538-ab67-401a-b730-83533aa8b53b\"}"
+    },
+    {
+      "test_name": "Parent view attendance",
+      "endpoint": "GET /students/a3a963ed-5288-48e9-955c-65d4c15b3fb3/attendance",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.217569ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"42aa00ff-5f8c-4947-a012-985f50a4177b\",\"created_at\":\"2026-05-02T08:52:47.025337611+05:30\",\"updated_at\":\"2026-05-02T08:52:47.025337611+05:30\",\"session_id\":\"abf3736c-f52f-4714-be79-5fdd3a98beb7\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"enrollment_id\":\"a00ca2ab-64a6-4a6f-bc9b-c1b3730926ee\",\"status\":\"present\",\"reason\":\"\",\"marked_at\":\"2026-05-02T03:22:47.025031375Z\",\"marked_by\":\"user-teacher-suite\",\"session\":{\"id\":\"abf3736c-f52f-4714-be79-5fdd3a98beb7\",\"updated_at\":\"2026-05-02T08:52:47.026443364+05:30\",\"section_id\":\"section-suite-a\",\"timetable_slot_id\":null,\"subject_id\":\"subject-suite-math\",\"staff_id\":\"staff-suite-teacher\",\"date\":\"2026-05-01T00:00:00Z\",\"period_number\":1,\"total_students\":1,\"present_count\":1,\"is_finalized\":false,\"created_at\":\"2026-05-02T08:52:47.01855888+05:30\"}}]}"
+    },
+    {
+      "test_name": "Parent blocked from other child fees",
+      "endpoint": "GET /students/student-suite-other/fees",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "637.442µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"9e54e491-d55d-408f-9730-4f7397c88aa2\"}"
+    },
+    {
+      "test_name": "Parent blocked from other child attendance",
+      "endpoint": "GET /students/student-suite-other/attendance",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "606.096µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"5aef01dc-2c9b-4015-8aa0-b34f5f769b47\"}"
+    },
+    {
+      "test_name": "Parent blocked from other child marks",
+      "endpoint": "GET /students/student-suite-other/marks",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "840.292µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"27570c08-b76f-4906-ad97-c0e420ae1c45\"}"
+    },
+    {
+      "test_name": "Parent blocked from other child transport",
+      "endpoint": "GET /students/student-suite-other/transport",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "624.94µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"5fc67322-f64d-4ff1-9d4f-35c17a8c8b70\"}"
+    },
+    {
+      "test_name": "Teacher blocked from outside class fees",
+      "endpoint": "GET /students/student-suite-outside/fees",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "820.639µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"617ae43b-94bb-4cb5-a829-f8169136eeae\"}"
+    },
+    {
+      "test_name": "Teacher blocked from outside class attendance",
+      "endpoint": "GET /students/student-suite-outside/attendance",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "714.509µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"7d1fe594-d847-4a69-98ea-859e4962fb80\"}"
+    },
+    {
+      "test_name": "Teacher blocked from outside class marks",
+      "endpoint": "GET /students/student-suite-outside/marks",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "1.032317ms",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"3fffed8e-6e23-4758-9c9a-ffec90363fd6\"}"
+    },
+    {
+      "test_name": "Teacher blocked from outside class transport",
+      "endpoint": "GET /students/student-suite-outside/transport",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "763.444µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"a8f5d958-b53f-49f9-aa7e-ac909f1e3cda\"}"
+    },
+    {
+      "test_name": "Parent forbidden other homework detail",
+      "endpoint": "GET /homework/35fb2efb-9a73-49c3-8d76-ccd0512934a5",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "1.080369ms",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"homework access denied\",\"error\":\"homework access denied\",\"request_id\":\"1f533091-18f5-4a32-a446-9d20a4e1fb87\"}"
+    },
+    {
+      "test_name": "Parent view homework",
+      "endpoint": "GET /homework",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.359467ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"1b02980d-ae9e-463b-adbd-dbe7327c297c\",\"created_at\":\"2026-05-02T08:52:47.030871768+05:30\",\"updated_at\":\"2026-05-02T08:52:47.030871768+05:30\",\"school_id\":\"school-suite\",\"title\":\"Runtime Homework\",\"subject\":\"Mathematics\",\"class\":\"Grade 10-A\",\"section_id\":\"section-suite-a\",\"teacher_id\":\"staff-suite-teacher\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"description\":\"API suite homework\",\"due_date\":\"2026-05-03T00:00:00Z\",\"status\":\"pending\",\"created_by\":\"staff-suite-teacher\"}],\"page\":1,\"page_size\":20,\"total\":1,\"total_pages\":1}"
+    },
+    {
+      "test_name": "Parent forbidden conversation for other child",
+      "endpoint": "POST /message-conversations",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "988.529µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"student access denied\",\"error\":\"student access denied\",\"request_id\":\"1b0557eb-90ee-4ab9-9e20-79d9b98884de\"}"
+    },
+    {
+      "test_name": "Parent create message conversation",
+      "endpoint": "POST /message-conversations",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "1.755268ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"d517e8e5-dcb0-4dbe-b3ea-edaadfa32400\",\"created_at\":\"2026-05-02T08:52:47.055013+05:30\",\"updated_at\":\"2026-05-02T08:52:47.055013+05:30\",\"school_id\":\"school-suite\",\"reference_type\":\"homework\",\"reference_id\":\"1b02980d-ae9e-463b-adbd-dbe7327c297c\",\"teacher_id\":\"staff-suite-teacher\",\"parent_id\":\"user-parent-suite\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"title\":\"Runtime Conversation\",\"last_message\":\"\",\"last_message_time\":\"2026-05-01T00:00:00Z\"},\"request_id\":\"e5778be7-1476-4f7e-9a20-af736c8b7afa\"}"
+    },
+    {
+      "test_name": "Parent reply message",
+      "endpoint": "POST /messages",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "1.938847ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"35a30a1f-2c62-4d73-b311-015c5def6b2f\",\"created_at\":\"2026-05-02T08:52:47.057035252+05:30\",\"updated_at\":\"2026-05-02T08:52:47.057035252+05:30\",\"conversation_id\":\"d517e8e5-dcb0-4dbe-b3ea-edaadfa32400\",\"sender_id\":\"user-parent-suite\",\"sender_role\":\"parent\",\"sender_name\":\"Suite Parent\",\"body\":\"Acknowledged\",\"is_read\":false,\"sent_at\":\"2026-05-01T00:01:00Z\"},\"request_id\":\"4390f290-63df-4864-a750-2fb564c07d7c\"}"
+    },
+    {
+      "test_name": "Parent view fees",
+      "endpoint": "GET /students/a3a963ed-5288-48e9-955c-65d4c15b3fb3/fees",
+      "role": "Parent",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "2.010682ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"2b1b7847-a4eb-48c7-bc60-6b0dbfb88425\",\"created_at\":\"2026-05-02T08:52:47.002870594+05:30\",\"updated_at\":\"2026-05-02T08:52:47.002870594+05:30\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"academic_year_id\":\"year-suite\",\"invoice_number\":\"RT-INV-001\",\"invoice_date\":\"2026-05-01T00:00:00Z\",\"due_date\":\"2026-05-10T00:00:00Z\",\"total_amount\":1000,\"discount_amount\":0,\"net_amount\":1000,\"paid_amount\":0,\"balance\":1000,\"status\":\"pending\",\"items\":[{\"id\":\"59191869-95da-401b-8115-1951765daa5f\",\"created_at\":\"2026-05-02T08:52:47.003551032+05:30\",\"updated_at\":\"2026-05-02T08:52:47.003551032+05:30\",\"invoice_id\":\"2b1b7847-a4eb-48c7-bc60-6b0dbfb88425\",\"fee_category_id\":\"fee-category-suite\",\"amount\":1000,\"description\":\"Tuition\"}]}]}"
+    },
+    {
+      "test_name": "Teacher submit leave",
+      "endpoint": "POST /leave/applications",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "2.12018ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"33320713-a38a-4942-b243-ff4cd08c6e7f\",\"created_at\":\"2026-05-02T08:52:47.060849424+05:30\",\"updated_at\":\"2026-05-02T08:52:47.060849424+05:30\",\"staff_id\":\"staff-suite-teacher\",\"leave_type_id\":\"leave-suite\",\"from_date\":\"2026-05-07T00:00:00Z\",\"to_date\":\"2026-05-07T00:00:00Z\",\"half_day\":false,\"total_days\":1,\"reason\":\"API suite\",\"status\":\"pending\",\"applied_at\":\"2026-05-02T08:52:47.06078778+05:30\",\"approved_by\":null,\"rejection_reason\":\"\"}}"
+    },
+    {
+      "test_name": "Teacher forbidden leave for other staff",
+      "endpoint": "POST /leave/applications",
+      "role": "Teacher",
+      "status": "PASS",
+      "status_code": 403,
+      "response_time": "390µs",
+      "response_body": "{\"success\":false,\"code\":\"HTTP_403\",\"message\":\"teachers can only create leave for themselves\",\"error\":\"teachers can only create leave for themselves\",\"request_id\":\"b2c77284-cbe0-4b82-af12-ab209c4aef18\"}"
+    },
+    {
+      "test_name": "Principal list approvals",
+      "endpoint": "GET /leave/applications",
+      "role": "Principal",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.17056ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"33320713-a38a-4942-b243-ff4cd08c6e7f\",\"created_at\":\"2026-05-02T08:52:47.060849424+05:30\",\"updated_at\":\"2026-05-02T08:52:47.060849424+05:30\",\"staff_id\":\"staff-suite-teacher\",\"leave_type_id\":\"leave-suite\",\"from_date\":\"2026-05-07T00:00:00Z\",\"to_date\":\"2026-05-07T00:00:00Z\",\"half_day\":false,\"total_days\":1,\"reason\":\"API suite\",\"status\":\"pending\",\"applied_at\":\"2026-05-02T08:52:47.06078778+05:30\",\"approved_by\":null,\"rejection_reason\":\"\",\"staff\":{\"id\":\"staff-suite-teacher\",\"created_at\":\"2026-05-02T08:52:42.25117672+05:30\",\"updated_at\":\"2026-05-02T08:52:42.25117672+05:30\",\"school_id\":\"school-suite\",\"staff_code\":\"T-001\",\"first_name\":\"Suite\",\"last_name\":\"Teacher\",\"email\":\"teacher@suite.test\",\"phone\":\"\",\"date_of_birth\":\"1991-05-02T03:22:42.248404537Z\",\"gender\":\"female\",\"department_id\":null,\"designation\":\"Teacher\",\"employment_type\":\"permanent\",\"join_date\":\"2021-05-02T03:22:42.248404537Z\",\"exit_date\":null,\"basic_salary\":0,\"status\":\"active\"},\"leave_type\":{\"id\":\"leave-suite\",\"created_at\":\"2026-05-02T08:52:42.255858135+05:30\",\"updated_at\":\"2026-05-02T08:52:42.255858135+05:30\",\"school_id\":\"school-suite\",\"leave_name\":\"Casual\",\"max_days_per_year\":12,\"carry_forward_days\":...[truncated]"
+    },
+    {
+      "test_name": "Principal approve leave",
+      "endpoint": "PUT /leave/applications/33320713-a38a-4942-b243-ff4cd08c6e7f/approve",
+      "role": "Principal",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "3.848558ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"33320713-a38a-4942-b243-ff4cd08c6e7f\",\"created_at\":\"2026-05-02T08:52:47.060849424+05:30\",\"updated_at\":\"2026-05-02T08:52:47.068913787+05:30\",\"staff_id\":\"staff-suite-teacher\",\"leave_type_id\":\"leave-suite\",\"from_date\":\"2026-05-07T00:00:00Z\",\"to_date\":\"2026-05-07T00:00:00Z\",\"half_day\":false,\"total_days\":1,\"reason\":\"API suite\",\"status\":\"approved\",\"applied_at\":\"2026-05-02T08:52:47.06078778+05:30\",\"approved_by\":null,\"rejection_reason\":\"\"}}"
+    },
+    {
+      "test_name": "Principal create announcement",
+      "endpoint": "POST /announcements",
+      "role": "Principal",
+      "status": "PASS",
+      "status_code": 201,
+      "response_time": "9.031301ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"4278deb2-fe7e-4bba-a2fd-d41cd734e054\",\"created_at\":\"2026-05-02T08:52:47.076004907+05:30\",\"updated_at\":\"2026-05-02T08:52:47.076004907+05:30\",\"school_id\":\"school-suite\",\"title\":\"Runtime Announcement\",\"content\":\"API suite\",\"target_audience\":\"all\",\"target_grade_id\":null,\"target_section_id\":null,\"is_urgent\":false,\"created_by\":\"user-principal-suite\",\"published_at\":\"2026-05-02T08:52:47.072298056+05:30\",\"expires_at\":null,\"attachment_url\":\"\"}}"
+    },
+    {
+      "test_name": "Principal analytics students",
+      "endpoint": "GET /students",
+      "role": "Principal",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.686017ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"student-suite-linked\",\"created_at\":\"2026-05-02T08:52:42.25374567+05:30\",\"updated_at\":\"2026-05-02T08:52:42.25374567+05:30\",\"school_id\":\"school-suite\",\"student_code\":\"ST-001\",\"admission_number\":\"ADM-001\",\"first_name\":\"Linked\",\"last_name\":\"Child\",\"date_of_birth\":\"2016-05-02T03:22:42.248404537Z\",\"gender\":\"male\",\"caste_category\":\"\",\"nationality\":\"\",\"admission_date\":\"2026-05-02T03:22:42.248404537Z\",\"current_section_id\":\"section-suite-a\",\"aadhar_number\":\"\",\"status\":\"active\",\"current_section\":{\"id\":\"section-suite-a\",\"created_at\":\"2026-05-02T08:52:42.250563776+05:30\",\"updated_at\":\"2026-05-02T08:52:42.250563776+05:30\",\"grade_id\":\"grade-suite-10\",\"academic_year_id\":\"year-suite\",\"section_name\":\"A\",\"class_teacher_id\":\"staff-suite-teacher\",\"room_id\":null,\"capacity\":40}},{\"id\":\"student-suite-other\",\"created_at\":\"2026-05-02T08:52:42.254089055+05:30\",\"updated_at\":\"2026-05-02T08:52:42.254089055+05:30\",\"school_id\":\"school-suite\",\"student_code\":\"ST-002\",\"admission_number\":\"ADM-002\",\"first_name\":\"Other\",\"last_name\":\"Child\",\"date_of_birth\":\"2016-05-02T03:22:42.248404537Z\",\"gender\":\"female\",\"caste_category\":\"\",\"nationality\":\"\",\"admission_date\":\"2026-05-02T03:22:42.248404537...[truncated]"
+    },
+    {
+      "test_name": "Principal monitoring audit logs",
+      "endpoint": "GET /audit-logs",
+      "role": "Principal",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "2.75493ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"6434291a-756e-4bab-84a5-4529f50f7476\",\"updated_at\":\"2026-05-02T08:52:47.078178247+05:30\",\"user_id\":\"user-principal-suite\",\"role\":\"Principal\",\"action\":\"create\",\"module\":\"announcements\",\"entity_type\":\"announcements\",\"entity_id\":\"4278deb2-fe7e-4bba-a2fd-d41cd734e054\",\"table_name\":\"announcements\",\"record_id\":\"4278deb2-fe7e-4bba-a2fd-d41cd734e054\",\"old_value\":\"\",\"new_value\":\"\",\"ip_address\":\"127.0.0.1\",\"created_at\":\"2026-05-02T08:52:47.078102075+05:30\",\"user\":{\"id\":\"user-principal-suite\",\"updated_at\":\"2026-05-02T08:52:42.252896478+05:30\",\"school_id\":\"school-suite\",\"username\":\"principal\",\"email\":\"principal@suite.test\",\"phone\":\"\",\"role_id\":\"role-principal-suite\",\"linked_type\":\"staff\",\"linked_id\":null,\"is_active\":true,\"is_verified\":true,\"last_login\":null,\"failed_attempts\":0,\"locked_until\":null,\"created_at\":\"2026-05-02T08:52:42.252896478+05:30\"}},{\"id\":\"e081ab17-b730-44ce-88ec-befde978fba1\",\"updated_at\":\"2026-05-02T08:52:47.069339309+05:30\",\"user_id\":\"user-principal-suite\",\"role\":\"Principal\",\"action\":\"update\",\"module\":\"leave\",\"entity_type\":\"leave_applications\",\"entity_id\":\"33320713-a38a-4942-b243-ff4cd08c6e7f\",\"table_name\":\"leave_applications\",\"record_id\":\"3332...[truncated]"
+    },
+    {
+      "test_name": "Admin fetch audit logs",
+      "endpoint": "GET /audit-logs",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "2.111628ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"6434291a-756e-4bab-84a5-4529f50f7476\",\"updated_at\":\"2026-05-02T08:52:47.078178247+05:30\",\"user_id\":\"user-principal-suite\",\"role\":\"Principal\",\"action\":\"create\",\"module\":\"announcements\",\"entity_type\":\"announcements\",\"entity_id\":\"4278deb2-fe7e-4bba-a2fd-d41cd734e054\",\"table_name\":\"announcements\",\"record_id\":\"4278deb2-fe7e-4bba-a2fd-d41cd734e054\",\"old_value\":\"\",\"new_value\":\"\",\"ip_address\":\"127.0.0.1\",\"created_at\":\"2026-05-02T08:52:47.078102075+05:30\",\"user\":{\"id\":\"user-principal-suite\",\"updated_at\":\"2026-05-02T08:52:42.252896478+05:30\",\"school_id\":\"school-suite\",\"username\":\"principal\",\"email\":\"principal@suite.test\",\"phone\":\"\",\"role_id\":\"role-principal-suite\",\"linked_type\":\"staff\",\"linked_id\":null,\"is_active\":true,\"is_verified\":true,\"last_login\":null,\"failed_attempts\":0,\"locked_until\":null,\"created_at\":\"2026-05-02T08:52:42.252896478+05:30\"}},{\"id\":\"e081ab17-b730-44ce-88ec-befde978fba1\",\"updated_at\":\"2026-05-02T08:52:47.069339309+05:30\",\"user_id\":\"user-principal-suite\",\"role\":\"Principal\",\"action\":\"update\",\"module\":\"leave\",\"entity_type\":\"leave_applications\",\"entity_id\":\"33320713-a38a-4942-b243-ff4cd08c6e7f\",\"table_name\":\"leave_applications\",\"record_id\":\"3332...[truncated]"
+    },
+    {
+      "test_name": "Audit attendance marking",
+      "endpoint": "GET /audit-logs?module=attendance\u0026page_size=100",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.413223ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"d3cb96e8-832b-4219-9df6-dc134f7dfd2a\",\"updated_at\":\"2026-05-02T08:52:47.027000428+05:30\",\"user_id\":\"user-teacher-suite\",\"role\":\"Teacher\",\"action\":\"update\",\"module\":\"attendance\",\"entity_type\":\"student_attendances\",\"entity_id\":\"abf3736c-f52f-4714-be79-5fdd3a98beb7\",\"table_name\":\"student_attendances\",\"record_id\":\"abf3736c-f52f-4714-be79-5fdd3a98beb7\",\"old_value\":\"\",\"new_value\":\"\",\"ip_address\":\"127.0.0.1\",\"created_at\":\"2026-05-02T08:52:47.026970573+05:30\",\"user\":{\"id\":\"user-teacher-suite\",\"updated_at\":\"2026-05-02T08:52:42.253195811+05:30\",\"school_id\":\"school-suite\",\"username\":\"teacher\",\"email\":\"teacher@suite.test\",\"phone\":\"\",\"role_id\":\"role-teacher-suite\",\"linked_type\":\"staff\",\"linked_id\":\"staff-suite-teacher\",\"is_active\":true,\"is_verified\":true,\"last_login\":null,\"failed_attempts\":0,\"locked_until\":null,\"created_at\":\"2026-05-02T08:52:42.253195811+05:30\"}},{\"id\":\"64c545a9-70fd-426b-9c4b-72c7e808fd7b\",\"updated_at\":\"2026-05-02T08:52:47.018952184+05:30\",\"user_id\":\"user-teacher-suite\",\"role\":\"Teacher\",\"action\":\"create\",\"module\":\"attendance\",\"entity_type\":\"attendance_sessions\",\"entity_id\":\"abf3736c-f52f-4714-be79-5fdd3a98beb7\",\"table_name\":\"attendance_sessions\",...[truncated]"
+    },
+    {
+      "test_name": "Audit exam marks entry",
+      "endpoint": "GET /audit-logs?module=exams\u0026page_size=100",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "3.493183ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"eb9a87fa-9545-4f66-b6fc-fcdd892c5e2f\",\"updated_at\":\"2026-05-02T08:52:47.039380358+05:30\",\"user_id\":\"user-teacher-suite\",\"role\":\"Teacher\",\"action\":\"create\",\"module\":\"exams\",\"entity_type\":\"student_marks\",\"entity_id\":\"04083fa3-cfb7-49e8-8029-62c124b01e09\",\"table_name\":\"student_marks\",\"record_id\":\"04083fa3-cfb7-49e8-8029-62c124b01e09\",\"old_value\":\"\",\"new_value\":\"\",\"ip_address\":\"127.0.0.1\",\"created_at\":\"2026-05-02T08:52:47.039345606+05:30\",\"user\":{\"id\":\"user-teacher-suite\",\"updated_at\":\"2026-05-02T08:52:42.253195811+05:30\",\"school_id\":\"school-suite\",\"username\":\"teacher\",\"email\":\"teacher@suite.test\",\"phone\":\"\",\"role_id\":\"role-teacher-suite\",\"linked_type\":\"staff\",\"linked_id\":\"staff-suite-teacher\",\"is_active\":true,\"is_verified\":true,\"last_login\":null,\"failed_attempts\":0,\"locked_until\":null,\"created_at\":\"2026-05-02T08:52:42.253195811+05:30\"}},{\"id\":\"5575af24-ad07-47b3-9f21-3f96204fd9b2\",\"updated_at\":\"2026-05-02T08:52:47.012597672+05:30\",\"user_id\":\"user-admin-suite\",\"role\":\"Admin\",\"action\":\"create\",\"module\":\"exams\",\"entity_type\":\"exam_schedules\",\"entity_id\":\"13bdb579-df2e-4bc6-af66-4f9386038bf3\",\"table_name\":\"exam_schedules\",\"record_id\":\"13bdb579-df2e-4bc6-af66...[truncated]"
+    },
+    {
+      "test_name": "Audit leave approval",
+      "endpoint": "GET /audit-logs?module=leave\u0026page_size=100",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "9.484413ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"e081ab17-b730-44ce-88ec-befde978fba1\",\"updated_at\":\"2026-05-02T08:52:47.069339309+05:30\",\"user_id\":\"user-principal-suite\",\"role\":\"Principal\",\"action\":\"update\",\"module\":\"leave\",\"entity_type\":\"leave_applications\",\"entity_id\":\"33320713-a38a-4942-b243-ff4cd08c6e7f\",\"table_name\":\"leave_applications\",\"record_id\":\"33320713-a38a-4942-b243-ff4cd08c6e7f\",\"old_value\":\"\",\"new_value\":\"\",\"ip_address\":\"127.0.0.1\",\"created_at\":\"2026-05-02T08:52:47.069309313+05:30\",\"user\":{\"id\":\"user-principal-suite\",\"updated_at\":\"2026-05-02T08:52:42.252896478+05:30\",\"school_id\":\"school-suite\",\"username\":\"principal\",\"email\":\"principal@suite.test\",\"phone\":\"\",\"role_id\":\"role-principal-suite\",\"linked_type\":\"staff\",\"linked_id\":null,\"is_active\":true,\"is_verified\":true,\"last_login\":null,\"failed_attempts\":0,\"locked_until\":null,\"created_at\":\"2026-05-02T08:52:42.252896478+05:30\"}},{\"id\":\"3e7b2a2b-c535-4c68-b5cd-730ea4c00b70\",\"updated_at\":\"2026-05-02T08:52:47.061384147+05:30\",\"user_id\":\"user-teacher-suite\",\"role\":\"Teacher\",\"action\":\"create\",\"module\":\"leave\",\"entity_type\":\"leave_applications\",\"entity_id\":\"33320713-a38a-4942-b243-ff4cd08c6e7f\",\"table_name\":\"leave_applications\",\"record_id\":\"333207...[truncated]"
+    },
+    {
+      "test_name": "Audit message conversation",
+      "endpoint": "GET /audit-logs?module=message_conversations\u0026page_size=100",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.067993ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"1099c8fe-d88a-482a-9f3a-48faa93657cd\",\"updated_at\":\"2026-05-02T08:52:47.055433663+05:30\",\"user_id\":\"user-parent-suite\",\"role\":\"Parent\",\"action\":\"create\",\"module\":\"message_conversations\",\"entity_type\":\"message_conversations\",\"entity_id\":\"d517e8e5-dcb0-4dbe-b3ea-edaadfa32400\",\"table_name\":\"message_conversations\",\"record_id\":\"d517e8e5-dcb0-4dbe-b3ea-edaadfa32400\",\"old_value\":\"\",\"new_value\":\"\",\"ip_address\":\"127.0.0.1\",\"created_at\":\"2026-05-02T08:52:47.055400192+05:30\",\"user\":{\"id\":\"user-parent-suite\",\"updated_at\":\"2026-05-02T08:52:42.253469372+05:30\",\"school_id\":\"school-suite\",\"username\":\"parent\",\"email\":\"parent@suite.test\",\"phone\":\"\",\"role_id\":\"role-parent-suite\",\"linked_type\":\"guardian\",\"linked_id\":null,\"is_active\":true,\"is_verified\":true,\"last_login\":null,\"failed_attempts\":0,\"locked_until\":null,\"created_at\":\"2026-05-02T08:52:42.253469372+05:30\"}}],\"page\":1,\"page_size\":100,\"total\":1,\"total_pages\":1}"
+    },
+    {
+      "test_name": "Audit message reply",
+      "endpoint": "GET /audit-logs?module=messages\u0026page_size=100",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.422773ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"4d1237d2-313c-4a6f-aeea-a83b0eba8499\",\"updated_at\":\"2026-05-02T08:52:47.057435993+05:30\",\"user_id\":\"user-parent-suite\",\"role\":\"Parent\",\"action\":\"create\",\"module\":\"messages\",\"entity_type\":\"messages\",\"entity_id\":\"35a30a1f-2c62-4d73-b311-015c5def6b2f\",\"table_name\":\"messages\",\"record_id\":\"35a30a1f-2c62-4d73-b311-015c5def6b2f\",\"old_value\":\"\",\"new_value\":\"\",\"ip_address\":\"127.0.0.1\",\"created_at\":\"2026-05-02T08:52:47.057403402+05:30\",\"user\":{\"id\":\"user-parent-suite\",\"updated_at\":\"2026-05-02T08:52:42.253469372+05:30\",\"school_id\":\"school-suite\",\"username\":\"parent\",\"email\":\"parent@suite.test\",\"phone\":\"\",\"role_id\":\"role-parent-suite\",\"linked_type\":\"guardian\",\"linked_id\":null,\"is_active\":true,\"is_verified\":true,\"last_login\":null,\"failed_attempts\":0,\"locked_until\":null,\"created_at\":\"2026-05-02T08:52:42.253469372+05:30\"}}],\"page\":1,\"page_size\":100,\"total\":1,\"total_pages\":1}"
+    },
+    {
+      "test_name": "Admin record fee payment",
+      "endpoint": "POST /fees/payments",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "2.98197ms",
+      "response_body": "{\"success\":true,\"data\":{\"id\":\"5b519135-1fb5-4402-91e6-baf6e3cfbdff\",\"updated_at\":\"2026-05-02T08:52:47.106375532+05:30\",\"invoice_id\":\"2b1b7847-a4eb-48c7-bc60-6b0dbfb88425\",\"receipt_number\":\"RT-RCPT-001\",\"amount_paid\":1000,\"payment_date\":\"2026-05-01T00:00:00Z\",\"payment_mode\":\"cash\",\"transaction_id\":\"\",\"received_by\":null,\"created_at\":\"2026-05-02T08:52:47.106375532+05:30\"}}"
+    },
+    {
+      "test_name": "Audit fee payment",
+      "endpoint": "GET /audit-logs?module=fees\u0026page_size=100",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.725822ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"971d460c-5ac0-45ca-9cc8-fd76323821d9\",\"updated_at\":\"2026-05-02T08:52:47.107397209+05:30\",\"user_id\":\"user-admin-suite\",\"role\":\"Admin\",\"action\":\"create\",\"module\":\"fees\",\"entity_type\":\"payments\",\"entity_id\":\"5b519135-1fb5-4402-91e6-baf6e3cfbdff\",\"table_name\":\"payments\",\"record_id\":\"5b519135-1fb5-4402-91e6-baf6e3cfbdff\",\"old_value\":\"\",\"new_value\":\"\",\"ip_address\":\"127.0.0.1\",\"created_at\":\"2026-05-02T08:52:47.107366173+05:30\",\"user\":{\"id\":\"user-admin-suite\",\"updated_at\":\"2026-05-02T08:52:42.252615787+05:30\",\"school_id\":\"school-suite\",\"username\":\"admin\",\"email\":\"admin@suite.test\",\"phone\":\"\",\"role_id\":\"role-admin-suite\",\"linked_type\":\"staff\",\"linked_id\":null,\"is_active\":true,\"is_verified\":true,\"last_login\":null,\"failed_attempts\":0,\"locked_until\":null,\"created_at\":\"2026-05-02T08:52:42.252615787+05:30\"}},{\"id\":\"d8148c36-2555-4dfe-9def-5fa0a359aebc\",\"updated_at\":\"2026-05-02T08:52:47.004058174+05:30\",\"user_id\":\"user-admin-suite\",\"role\":\"Admin\",\"action\":\"create\",\"module\":\"fees\",\"entity_type\":\"fee_invoices\",\"entity_id\":\"2b1b7847-a4eb-48c7-bc60-6b0dbfb88425\",\"table_name\":\"fee_invoices\",\"record_id\":\"2b1b7847-a4eb-48c7-bc60-6b0dbfb88425\",\"old_value\":\"\",\"new_value\":\"\",...[truncated]"
+    },
+    {
+      "test_name": "Admin verify paid invoice",
+      "endpoint": "GET /fees/invoices?student_id=a3a963ed-5288-48e9-955c-65d4c15b3fb3",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.662946ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"2b1b7847-a4eb-48c7-bc60-6b0dbfb88425\",\"created_at\":\"2026-05-02T08:52:47.002870594+05:30\",\"updated_at\":\"2026-05-02T08:52:47.10699693+05:30\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"academic_year_id\":\"year-suite\",\"invoice_number\":\"RT-INV-001\",\"invoice_date\":\"2026-05-01T00:00:00Z\",\"due_date\":\"2026-05-10T00:00:00Z\",\"total_amount\":1000,\"discount_amount\":0,\"net_amount\":1000,\"paid_amount\":1000,\"balance\":0,\"status\":\"paid\",\"student\":{\"id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"created_at\":\"2026-05-02T08:52:46.996436731+05:30\",\"updated_at\":\"2026-05-02T08:52:46.996436731+05:30\",\"school_id\":\"school-suite\",\"student_code\":\"RT-001\",\"admission_number\":\"RT-001\",\"first_name\":\"Runtime\",\"last_name\":\"Student\",\"date_of_birth\":\"2015-01-01T00:00:00Z\",\"gender\":\"female\",\"caste_category\":\"\",\"nationality\":\"\",\"admission_date\":\"2026-05-02T08:52:46.996179904+05:30\",\"current_section_id\":\"section-suite-a\",\"aadhar_number\":\"\",\"status\":\"active\"},\"items\":[{\"id\":\"59191869-95da-401b-8115-1951765daa5f\",\"created_at\":\"2026-05-02T08:52:47.003551032+05:30\",\"updated_at\":\"2026-05-02T08:52:47.003551032+05:30\",\"invoice_id\":\"2b1b7847-a4eb-48c7-bc60-6b0dbfb88425\",\"fee_category_id\":\"fee-c...[truncated]"
+    },
+    {
+      "test_name": "Admin verify marks",
+      "endpoint": "GET /students/a3a963ed-5288-48e9-955c-65d4c15b3fb3/marks?exam_id=8d42adb3-44ae-48c0-92af-345e86f83560",
+      "role": "Admin",
+      "status": "PASS",
+      "status_code": 200,
+      "response_time": "1.190091ms",
+      "response_body": "{\"success\":true,\"data\":[{\"id\":\"04083fa3-cfb7-49e8-8029-62c124b01e09\",\"created_at\":\"2026-05-02T08:52:47.038928535+05:30\",\"updated_at\":\"2026-05-02T08:52:47.038928535+05:30\",\"exam_schedule_id\":\"d8aced1d-16d3-4154-a4a1-e15c0a5031f4\",\"student_id\":\"a3a963ed-5288-48e9-955c-65d4c15b3fb3\",\"enrollment_id\":\"a00ca2ab-64a6-4a6f-bc9b-c1b3730926ee\",\"marks_obtained\":92,\"grade_label\":\"A+\",\"is_absent\":false,\"is_exempted\":false,\"entered_by\":\"staff-suite-teacher\",\"verified_by\":null,\"exam_schedule\":{\"id\":\"d8aced1d-16d3-4154-a4a1-e15c0a5031f4\",\"created_at\":\"2026-05-02T08:52:47.010447178+05:30\",\"updated_at\":\"2026-05-02T08:52:47.010447178+05:30\",\"exam_id\":\"8d42adb3-44ae-48c0-92af-345e86f83560\",\"grade_id\":\"grade-suite-10\",\"section_id\":\"section-suite-a\",\"subject_id\":\"subject-suite-math\",\"exam_date\":\"2026-05-15T00:00:00Z\",\"start_time\":\"09:00\",\"end_time\":\"10:00\",\"max_marks\":100,\"pass_marks\":35,\"room_id\":null,\"exam\":{\"id\":\"8d42adb3-44ae-48c0-92af-345e86f83560\",\"created_at\":\"2026-05-02T08:52:47.008427065+05:30\",\"updated_at\":\"2026-05-02T08:52:47.008427065+05:30\",\"school_id\":\"school-suite\",\"academic_year_id\":\"year-suite\",\"term_id\":\"term-suite-1\",\"exam_type_id\":\"a6c89b24-c0ed-4ba2-8179-82f0c31d9c01\",\"exam_name\":\"R...[truncated]"
+    }
+  ]
+}

@@ -51,6 +51,8 @@ func (h *FeeHandler) CreateFeeCategory(c *gin.Context) {
 		return
 	}
 
+	id := cat.ID
+	auditAction(c, "fees", "create", "fee_categories", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: cat})
 }
 
@@ -97,24 +99,54 @@ func (h *FeeHandler) CreateFeeStructure(c *gin.Context) {
 		return
 	}
 
+	id := structure.ID
+	auditAction(c, "fees", "create", "fee_structures", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: structure})
 }
 
 func (h *FeeHandler) GetInvoices(c *gin.Context) {
+	schoolID := scopedSchoolID(c)
 	studentID := c.Query("student_id")
 	status := c.Query("status")
+	page, pageSize := parsePagination(c)
 
+	// FeeInvoice has no school_id column; school boundary is enforced by
+	// joining through students so that only invoices belonging to the
+	// caller's school are returned.
 	var invoices []models.FeeInvoice
-	query := database.DB.Preload("Student").Preload("Items").Preload("Payments")
+	var total int64
+
+	query := database.DB.Model(&models.FeeInvoice{}).
+		Joins("JOIN students ON students.id = fee_invoices.student_id").
+		Where("students.school_id = ?", schoolID)
+	if currentRole(c) == "parent" {
+		query = query.Where("fee_invoices.student_id IN (?)", linkedStudentSubquery(c))
+	}
+
 	if studentID != "" {
-		query = query.Where("student_id = ?", studentID)
+		query = query.Where("fee_invoices.student_id = ?", studentID)
 	}
 	if status != "" {
-		query = query.Where("status = ?", status)
+		query = query.Where("fee_invoices.status = ?", status)
 	}
-	query.Find(&invoices)
 
-	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: invoices})
+	query.Count(&total)
+
+	if err := query.
+		Preload("Student").
+		Preload("Items").
+		Preload("Payments").
+		Offset((page - 1) * pageSize).
+		Limit(pageSize).
+		Find(&invoices).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Failed to fetch invoices",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, paginationResult(page, pageSize, total, invoices))
 }
 
 func (h *FeeHandler) CreateInvoice(c *gin.Context) {
@@ -135,6 +167,10 @@ func (h *FeeHandler) CreateInvoice(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if !canAccessStudentID(c, req.StudentID) {
+		forbid(c, "student access denied")
 		return
 	}
 
@@ -170,6 +206,8 @@ func (h *FeeHandler) CreateInvoice(c *gin.Context) {
 		database.DB.Create(&invoiceItem)
 	}
 
+	id := invoice.ID
+	auditAction(c, "fees", "create", "fee_invoices", &id)
 	c.JSON(http.StatusCreated, models.APIResponse{Success: true, Data: invoice})
 }
 
@@ -188,6 +226,13 @@ func (h *FeeHandler) RecordPayment(c *gin.Context) {
 	}
 
 	paymentDate, _ := time.Parse("2006-01-02", req.PaymentDate)
+	var invoice models.FeeInvoice
+	if err := database.DB.Joins("JOIN students ON students.id = fee_invoices.student_id").
+		Where("fee_invoices.id = ? AND students.school_id = ?", req.InvoiceID, scopedSchoolID(c)).
+		First(&invoice).Error; err != nil {
+		forbid(c, "invoice access denied")
+		return
+	}
 
 	payment := models.Payment{
 		InvoiceID:     req.InvoiceID,
@@ -203,8 +248,6 @@ func (h *FeeHandler) RecordPayment(c *gin.Context) {
 		return
 	}
 
-	var invoice models.FeeInvoice
-	database.DB.First(&invoice, "id = ?", req.InvoiceID)
 	invoice.PaidAmount += req.AmountPaid
 	invoice.Balance -= req.AmountPaid
 	if invoice.Balance <= 0 {
@@ -215,6 +258,8 @@ func (h *FeeHandler) RecordPayment(c *gin.Context) {
 	}
 	database.DB.Save(&invoice)
 
+	id := payment.ID
+	auditAction(c, "fees", "create", "payments", &id)
 	c.JSON(http.StatusOK, models.APIResponse{Success: true, Data: payment})
 }
 
@@ -222,6 +267,9 @@ func (h *FeeHandler) GetConcessions(c *gin.Context) {
 	studentID := c.Query("student_id")
 	var concessions []models.FeeConcession
 	query := database.DB.Preload("FeeCategory").Preload("Student")
+	if currentRole(c) == "parent" {
+		query = query.Where("student_id IN (?)", linkedStudentSubquery(c))
+	}
 	if studentID != "" {
 		query = query.Where("student_id = ?", studentID)
 	}

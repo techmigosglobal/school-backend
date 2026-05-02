@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -117,16 +118,32 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	var user models.User
 	identifier := strings.ToLower(strings.TrimSpace(req.Username))
+	var users []models.User
 	if err := database.DB.Preload("Role").
 		Where("LOWER(username) = ? OR LOWER(email) = ?", identifier, identifier).
-		First(&user).Error; err != nil {
+		Find(&users).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+	if len(users) == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
 
-	if !database.CheckPassword(req.Password, user.PasswordHash) {
+	sort.SliceStable(users, func(i, j int) bool {
+		return rolePriority(users[i].Role.RoleName) < rolePriority(users[j].Role.RoleName)
+	})
+
+	var user *models.User
+	for idx := range users {
+		if database.CheckPassword(req.Password, users[idx].PasswordHash) {
+			user = &users[idx]
+			break
+		}
+	}
+
+	if user == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
@@ -136,7 +153,22 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	issueLoginResponse(c, user, user.Role.RoleName)
+	issueLoginResponse(c, *user, user.Role.RoleName)
+}
+
+func rolePriority(roleName string) int {
+	switch strings.ToLower(strings.TrimSpace(roleName)) {
+	case "principal":
+		return 0
+	case "admin":
+		return 1
+	case "teacher":
+		return 2
+	case "parent":
+		return 3
+	default:
+		return 9
+	}
 }
 
 func (h *AuthHandler) RegisterSchoolAdmin(c *gin.Context) {
@@ -191,7 +223,7 @@ func (h *AuthHandler) RegisterSchoolAdmin(c *gin.Context) {
 		}
 
 		roleIDs := map[string]string{}
-		for _, roleName := range []string{"Admin", "Principal", "Teacher", "Parent"} {
+		for _, roleName := range []string{"Principal", "Admin", "Teacher", "Parent"} {
 			role := models.Role{
 				SchoolID:     school.ID,
 				RoleName:     roleName,
