@@ -28,7 +28,7 @@ type RegisterRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Phone    string `json:"phone" binding:"required"`
 	Password string `json:"password" binding:"required,min=6"`
-	SchoolID string `json:"school_id" binding:"required"`
+	SchoolID string `json:"school_id"`
 	RoleID   string `json:"role_id"`
 }
 
@@ -80,7 +80,7 @@ type CreateSchoolRequest struct {
 }
 
 type CreateAcademicYearRequest struct {
-	SchoolID  string `json:"school_id" binding:"required"`
+	SchoolID  string `json:"school_id"`
 	YearLabel string `json:"year_label" binding:"required"`
 	StartDate string `json:"start_date" binding:"required"`
 	EndDate   string `json:"end_date" binding:"required"`
@@ -88,7 +88,7 @@ type CreateAcademicYearRequest struct {
 }
 
 type CreateStaffRequest struct {
-	SchoolID       string  `json:"school_id" binding:"required"`
+	SchoolID       string  `json:"school_id"`
 	StaffCode      string  `json:"staff_code"`
 	FirstName      string  `json:"first_name" binding:"required"`
 	LastName       string  `json:"last_name" binding:"required"`
@@ -119,7 +119,7 @@ type CreateStudentRequest struct {
 }
 
 type CreateGradeRequest struct {
-	SchoolID    string `json:"school_id" binding:"required"`
+	SchoolID    string `json:"school_id"`
 	GradeNumber int    `json:"grade_number" binding:"required"`
 	GradeName   string `json:"grade_name" binding:"required"`
 }
@@ -134,7 +134,7 @@ type CreateSectionRequest struct {
 }
 
 type CreateSubjectRequest struct {
-	SchoolID     string  `json:"school_id" binding:"required"`
+	SchoolID     string  `json:"school_id"`
 	DepartmentID string  `json:"department_id" binding:"required"`
 	SubjectName  string  `json:"subject_name" binding:"required"`
 	SubjectCode  string  `json:"subject_code"`
@@ -151,7 +151,7 @@ type CreateEnrollmentRequest struct {
 }
 
 type CreateFeeStructureRequest struct {
-	SchoolID       string  `json:"school_id" binding:"required"`
+	SchoolID       string  `json:"school_id"`
 	AcademicYearID string  `json:"academic_year_id" binding:"required"`
 	GradeID        string  `json:"grade_id" binding:"required"`
 	FeeCategoryID  string  `json:"fee_category_id" binding:"required"`
@@ -183,7 +183,7 @@ type CreateTimetableSlotRequest struct {
 }
 
 type CreateExamRequest struct {
-	SchoolID       string `json:"school_id" binding:"required"`
+	SchoolID       string `json:"school_id"`
 	AcademicYearID string `json:"academic_year_id" binding:"required"`
 	TermID         string `json:"term_id" binding:"required"`
 	ExamTypeID     string `json:"exam_type_id" binding:"required"`
