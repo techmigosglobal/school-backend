@@ -286,6 +286,16 @@ func seedRolePermissionsWithDB(db *gorm.DB, adminRoleID, principalRoleID, teache
 func permissionModules() []string {
 	return []string{
 		"dashboard",
+		"staff",
+		"students",
+		"classes",
+		"sections",
+		"attendance",
+		"fees",
+		"timetable",
+		"exams",
+		"events",
+		"announcements",
 		"guardians",
 		"medical_records",
 		"student_documents",
